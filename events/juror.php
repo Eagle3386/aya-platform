@@ -26,7 +26,6 @@ require_once('fragments/header.php');
 
 $showDistance = false;
 $showDistanceShortened = false;
-$showListingLink = true;
 $showMap = false;
 require_once('fragments/navigation.php');
 

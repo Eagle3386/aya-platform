@@ -17,7 +17,7 @@ echo '<nav class="navbar navbar-default navbar-fixed-top">
   <div class="container">
     <div class="navbar-header">
       <button class="navbar-toggle collapsed" data-target="#aya-navbar-collapse" data-toggle="collapse" type="button" aria-expanded="false">
-        <span class="sr-only">Menü</span>
+        <span class="sr-only">Menü umschalten</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -27,52 +27,54 @@ echo '<nav class="navbar navbar-default navbar-fixed-top">
       </a>
     </div>
     <div id="aya-navbar-collapse" class="collapse navbar-collapse">
-      <div class="btn-group" role="group" aria-label="...">';
-
-if ($showListingLink)
-{
-  echo '<a class="btn btn-aya-default navbar-btn" href="./listing.php" role="button">
-  <span class="glyphicon glyphicon-chevron-left"></span> Alle Wettbewerbe
-</a>';
-}
-
-echo '<div id="aya-vehicle-menu" class="btn-group" role="group">
-  <a class="btn btn-aya-default ' . ($phpBBUserID < 2 ? 'disabled' : 'dropdown-toggle" data-toggle="dropdown') . '" href="#" role="button">
-    Meine Daten <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu">
-    <li>
-      <a id="attendances-editor" href="#">
-        <span class="glyphicon glyphicon-calendar"></span> Teilnahmen
-      </a>
-    </li>
-    <li>
-      <a id="vehicles-editor" href="#">
-        <span class="glyphicon glyphicon-bed"></span> Fahrzeuge
-      </a>
-    </li>
-  </ul>
-</div>';
+      <ul class="nav navbar-nav">
+        <li>
+          <a class="btn btn-aya-default navbar-btn' . (strpos($_SERVER['SCRIPT_NAME'], 'listing') === false ? '' : ' active') . '" href="./listing.php"
+             role="button">
+            <span class="glyphicon glyphicon-th"></span> Wettbewerbe
+          </a>
+        </li>';
 
 if ($isJuror)
 {
-  echo '<a class="btn btn-aya-default navbar-btn" href="./juror.php" role="button">
-  <span class="glyphicon glyphicon-list-alt"></span> Jurorenbereich
-</a>';
+  echo '<li>
+  <a class="btn btn-aya-default navbar-btn' . (strpos($_SERVER['SCRIPT_NAME'], 'juror') === false ? '' : ' active') . '" href="./juror.php" role="button">
+    <span class="glyphicon glyphicon-list-alt"></span> Jurorenbereich
+  </a>
+</li>';
 }
 
 if ($isAdmin)
 {
-  echo '<a class="btn btn-aya-default navbar-btn" href="./admin.php" role="button">
-  <span class="glyphicon glyphicon-wrench"></span> Administration
-</a>';
+  echo '<li>
+  <a class="btn btn-aya-default navbar-btn' . (strpos($_SERVER['SCRIPT_NAME'], 'admin') === false ? '' : ' active') . '" href="./admin.php" role="button">
+    <span class="glyphicon glyphicon-wrench"></span> Administration
+  </a>
+</li>';
 }
 
-echo '</div>
+echo '<li class="dropdown">
+          <a class="btn btn-aya-default navbar-btn ' . ($phpBBUserID < 2 ? 'disabled' : 'dropdown-toggle" data-toggle="dropdown') . '" href="#" role="button">
+            <span class="glyphicon glyphicon-user"></span> ' . $ayaUsername . ' <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a id="attendances-editor" href="#">
+                <span class="glyphicon glyphicon-calendar"></span> Teilnahmen
+              </a>
+            </li>
+            <li>
+              <a id="vehicles-editor" href="#">
+                <span class="glyphicon glyphicon-bed"></span> Fahrzeuge
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
       <p class="navbar-text navbar-right">
         <a id="aya-user" data-user-id="' . $phpBBUserID . '" href="/'
-             . ($phpBBUserID < 2 ? 'ucp.php?mode=login">Foren-Anmeldung' : 'memberlist.php?mode=viewprofile&amp;u=' . $phpBBUserID . '"
-           data-location="' . $ayaUserLocation . '">Willkommen, ' . $ayaUsername) . '</a>
+              . ($phpBBUserID < 2 ? 'ucp.php?mode=login">Foren-Anmeldung' : 'memberlist.php?mode=viewprofile&amp;u=' . $phpBBUserID . '"
+            data-location="' . $ayaUserLocation . '">Willkommen, ' . $ayaUsername) . '.</a>
       </p>
     </div>
   </div>

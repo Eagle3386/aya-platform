@@ -39,7 +39,6 @@ require_once('fragments/header.php');
 $isEventPage = true;
 $showDistance = true;
 $showDistanceShortened = false;
-$showListingLink = true;
 $showMap = true;
 require_once('fragments/navigation.php');
 
