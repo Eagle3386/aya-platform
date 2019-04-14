@@ -53,7 +53,7 @@ echo '<div id="attendances-editor-dialog" class="modal fade" role="dialog" tabin
 try
 {
   $attendances = $db->prepare('SELECT A.AttendeeID, A.EventID, E.Date, E.Name AS EventName, C.Name AS ClassName, V.RegistrationNumber
-                               FROM aya_attendees A
+                               FROM aya_attendances A
                                JOIN aya_events E ON E.EventID = A.EventID
                                JOIN aya_classes C ON C.ClassID = A.ClassID
                                JOIN aya_vehicles V ON V.VehicleID = A.VehicleID

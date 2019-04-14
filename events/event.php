@@ -104,7 +104,7 @@ $attendees = 0;
 try
 {
   $attendeesTotal = $db->prepare('SELECT COUNT(*)
-                                  FROM aya_attendees
+                                  FROM aya_attendances
                                   WHERE EventID = :id
                                     AND Deleted = FALSE');
   $attendeesTotal->bindValue(':id', $ayaEvent['EventID'], PDO::PARAM_INT);
@@ -137,7 +137,7 @@ try
     try
     {
       $classTotal = $db->prepare('SELECT COUNT(*)
-                                  FROM aya_attendees
+                                  FROM aya_attendances
                                   WHERE EventID = :eventId
                                     AND Deleted = FALSE
                                     AND ClassID = :classId');
@@ -174,7 +174,7 @@ try
       try
       {
         $attendees = $db->prepare('SELECT A.AttendeeID, U.username AS Username, P.pf_teamname AS TeamName
-                                   FROM aya_attendees A
+                                   FROM aya_attendances A
                                    JOIN phpbb_users U ON U.user_id = A.phpBBUserID
                                    JOIN phpbb_profile_fields_data P ON P.user_id = A.phpBBUserID
                                    WHERE A.Deleted = FALSE

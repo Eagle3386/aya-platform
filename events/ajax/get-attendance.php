@@ -19,7 +19,7 @@ require_once('../db-initialization.php');
 try
 {
   $attendance = $db->prepare('SELECT VehicleID, ClassID, Remark
-                              FROM aya_attendees
+                              FROM aya_attendances
                               WHERE Deleted = FALSE
                                 AND AttendeeID = :id');
   $attendance->bindValue(':id', $_POST['AttendeeID'], PDO::PARAM_INT);

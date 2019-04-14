@@ -56,7 +56,7 @@ if (!empty($entities) && !empty($type))
       try
       {
         $check = $db->prepare("SELECT COUNT(*)
-                               FROM aya_attendees
+                               FROM aya_attendances
                                WHERE Deleted = FALSE
                                  AND ConfirmationDate BETWEEN CONCAT(YEAR(CURDATE()), '-01-01') AND CONCAT(YEAR(CURDATE()), '-12-31')
                                  AND " . $typeId . " IN (" . $placeholders . ")");

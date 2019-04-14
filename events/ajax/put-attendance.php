@@ -25,7 +25,7 @@ if (!empty($attendeeID) && !empty($classID) && !empty($eventID) && !empty($vehic
   try
   {
     $check = $db->prepare('SELECT COUNT(*)
-                           FROM aya_attendees
+                           FROM aya_attendances
                            WHERE Deleted = FALSE
                              AND AttendeeID != :attendeeId
                              AND EventID = :eventId
@@ -47,7 +47,7 @@ if (!empty($attendeeID) && !empty($classID) && !empty($eventID) && !empty($vehic
     try
     {
       $check = $db->prepare('SELECT COUNT(A.AttendeeID) AS Attendees, E.ClassLimits
-                             FROM aya_attendees A
+                             FROM aya_attendances A
                              JOIN aya_events E ON E.EventID = A.EventID
                              WHERE A.Deleted = FALSE
                                AND A.EventID = :eventId
@@ -68,7 +68,7 @@ if (!empty($attendeeID) && !empty($classID) && !empty($eventID) && !empty($vehic
     {
       try
       {
-        $attendance = $db->prepare('UPDATE aya_attendees
+        $attendance = $db->prepare('UPDATE aya_attendances
                                     SET ClassID = :classId, VehicleID = :vehicleId, Remark = :remark
                                     WHERE phpBBUserID = :userId
                                       AND AttendeeID = :attendeeId');

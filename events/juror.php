@@ -77,7 +77,7 @@ try
   $vehicles = $db->prepare("SELECT (CASE WHEN LENGTH(V.InstallFlaws) > 0 THEN true ELSE false END) AS IsFlawed, C.ClassID, A.phpBBUserID, A.VehicleID,
                             C.Name AS ClassName, CONCAT(P.pf_vor_nachname_, ', ', P.pf_vorname) AS RealName, V.RegistrationNumber,
                             CONCAT(M.Name, ' ', V.Model) AS VehicleName, DATE_FORMAT(V.LastFlawsUpdate, '%Y-%m-%d %H:%i') AS Date
-                            FROM aya_attendees A
+                            FROM aya_attendances A
                             JOIN aya_classes C ON C.ClassID = A.ClassID
                             JOIN phpbb_profile_fields_data P ON P.user_id = A.phpBBUserID
                             JOIN aya_vehicles V ON V.VehicleID = A.VehicleID

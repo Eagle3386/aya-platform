@@ -80,7 +80,7 @@ try
                                CONCAT(M.Name, ' ', V.Model) AS Vehicle, V.Color, V.RegistrationNumber, P.pf_handynr AS PhoneNumber,
                                P.pf_teamname AS TeamName, U.user_email AS MailAddress, V.Components, V.InstallFlaws, A.Remark, A.ClassID,
                                C.Name AS ClassName, (CASE WHEN U.group_id > 7 THEN 'ja' ELSE 'nein' END) AS IsAyaMember
-                             FROM aya_attendees A
+                             FROM aya_attendances A
                              JOIN aya_classes C ON C.ClassID = A.ClassID
                              JOIN aya_vehicles V ON V.VehicleID = A.VehicleID
                              JOIN aya_manufacturers M ON M.ManufacturerID = V.ManufacturerID

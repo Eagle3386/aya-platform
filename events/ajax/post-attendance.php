@@ -24,7 +24,7 @@ if (!empty($classID) && !empty($eventID) && !empty($vehicleID))
   try
   {
     $check = $db->prepare('SELECT COUNT(*)
-                           FROM aya_attendees
+                           FROM aya_attendances
                            WHERE Deleted = FALSE
                              AND EventID = :eventId
                              AND VehicleID = :vehicleId');
@@ -44,7 +44,7 @@ if (!empty($classID) && !empty($eventID) && !empty($vehicleID))
     try
     {
       $check = $db->prepare('SELECT COUNT(A.AttendeeID) AS Attendees, E.ClassLimits
-                             FROM aya_attendees A
+                             FROM aya_attendances A
                              JOIN aya_events E ON E.EventID = A.EventID
                              WHERE A.Deleted = FALSE
                                AND A.ClassID = :classId
@@ -66,7 +66,7 @@ if (!empty($classID) && !empty($eventID) && !empty($vehicleID))
       try
       {
         $attendance = $db->prepare('INSERT
-                                    INTO aya_attendees (phpBBUserID, EventID, ClassID, VehicleID, Remark)
+                                    INTO aya_attendances (phpBBUserID, EventID, ClassID, VehicleID, Remark)
                                     VALUES (:userId, :eventId, :classId, :vehicleId, :remark)');
         $attendance->bindValue(':userId', $phpBBUserID, PDO::PARAM_INT);
         $attendance->bindValue(':eventId', $eventID, PDO::PARAM_INT);
