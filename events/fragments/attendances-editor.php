@@ -52,7 +52,7 @@ echo '<div id="attendances-editor-dialog" class="modal fade" role="dialog" tabin
 
 try
 {
-  $attendances = $db->prepare('SELECT A.AttendeeID, A.EventID, E.Date, E.Name AS EventName, C.Name AS ClassName, V.RegistrationNumber
+  $attendances = $db->prepare('SELECT A.AttendanceID, A.EventID, E.Date, E.Name AS EventName, C.Name AS ClassName, V.RegistrationNumber
                                FROM aya_attendances A
                                JOIN aya_events E ON E.EventID = A.EventID
                                JOIN aya_classes C ON C.ClassID = A.ClassID
@@ -84,11 +84,11 @@ else
   {
     if (!$isFirstMatch && ($attendance['EventID'] === $ayaEvent['EventID'] || empty($ayaEvent['EventID'])))
     {
-      $initialAttendance = $attendance['AttendeeID'];
+      $initialAttendance = $attendance['AttendanceID'];
       $isFirstMatch = true;
     }
     $attendancesList .= '<option data-event-id="' . $attendance['EventID'] . '" data-subtext="' . $attendance['ClassName'] . ' ('
-      . $attendance['RegistrationNumber'] . ')" value="' . $attendance['AttendeeID'] . '">' . date($selectorDateFormat, strtotime($attendance['Date']))
+      . $attendance['RegistrationNumber'] . ')" value="' . $attendance['AttendanceID'] . '">' . date($selectorDateFormat, strtotime($attendance['Date']))
       . $attendance['EventName'] . '</option>';
   }
 }

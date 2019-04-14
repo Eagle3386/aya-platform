@@ -173,7 +173,7 @@ try
 
       try
       {
-        $attendees = $db->prepare('SELECT A.AttendeeID, U.username AS Username, P.pf_teamname AS TeamName
+        $attendees = $db->prepare('SELECT A.AttendanceID, U.username AS Username, P.pf_teamname AS TeamName
                                    FROM aya_attendances A
                                    JOIN phpbb_users U ON U.user_id = A.phpBBUserID
                                    JOIN phpbb_profile_fields_data P ON P.user_id = A.phpBBUserID
@@ -187,7 +187,7 @@ try
 
         while ($attendee = $attendees->fetch(PDO::FETCH_ASSOC))
         {
-          echo '<li class="list-group-item" data-attendee-id="' . $attendee['AttendeeID'] . '">';
+          echo '<li class="list-group-item" data-attendee-id="' . $attendee['AttendanceID'] . '">';
           if (empty($attendee['TeamName']))
           {
             echo $attendee['Username'];

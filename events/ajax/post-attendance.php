@@ -43,7 +43,7 @@ if (!empty($classID) && !empty($eventID) && !empty($vehicleID))
   {
     try
     {
-      $check = $db->prepare('SELECT COUNT(A.AttendeeID) AS Attendees, E.ClassLimits
+      $check = $db->prepare('SELECT COUNT(A.AttendanceID) AS Attendees, E.ClassLimits
                              FROM aya_attendances A
                              JOIN aya_events E ON E.EventID = A.EventID
                              WHERE A.Deleted = FALSE

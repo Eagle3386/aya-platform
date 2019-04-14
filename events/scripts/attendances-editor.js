@@ -80,7 +80,7 @@ function getAttendance() {
   $.ajax({
     cache: false,
     data: {
-      AttendeeID: attendanceSelector.selectpicker('val')
+      AttendanceID: attendanceSelector.selectpicker('val')
     },
     method: 'POST',
     url: ajaxFolder + 'get-attendance.php'
@@ -100,7 +100,7 @@ function getAttendance() {
 
 function getPayload() {
   return {
-    AttendeeID: attendanceSelector.selectpicker('val'),
+    AttendanceID: attendanceSelector.selectpicker('val'),
     ClassID: classSelector.selectpicker('val'),
     EventID: attendanceSelector[0].selectedOptions[0].dataset.eventId,
     VehicleID: vehicleSelector.selectpicker('val'),

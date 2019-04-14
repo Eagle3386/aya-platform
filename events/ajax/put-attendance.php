@@ -15,7 +15,7 @@
 
 require_once('../db-initialization.php');
 
-$attendeeID = $_POST['AttendeeID'];
+$attendeeID = $_POST['AttendanceID'];
 $classID = $_POST['ClassID'];
 $eventID =  $_POST['EventID'];
 $vehicleID = $_POST['VehicleID'];
@@ -27,7 +27,7 @@ if (!empty($attendeeID) && !empty($classID) && !empty($eventID) && !empty($vehic
     $check = $db->prepare('SELECT COUNT(*)
                            FROM aya_attendances
                            WHERE Deleted = FALSE
-                             AND AttendeeID != :attendeeId
+                             AND AttendanceID != :attendeeId
                              AND EventID = :eventId
                              AND VehicleID = :vehicleId');
     $check->bindValue(':attendeeId', $attendeeID, PDO::PARAM_INT);
@@ -46,7 +46,7 @@ if (!empty($attendeeID) && !empty($classID) && !empty($eventID) && !empty($vehic
   {
     try
     {
-      $check = $db->prepare('SELECT COUNT(A.AttendeeID) AS Attendees, E.ClassLimits
+      $check = $db->prepare('SELECT COUNT(A.AttendanceID) AS Attendees, E.ClassLimits
                              FROM aya_attendances A
                              JOIN aya_events E ON E.EventID = A.EventID
                              WHERE A.Deleted = FALSE
@@ -71,12 +71,12 @@ if (!empty($attendeeID) && !empty($classID) && !empty($eventID) && !empty($vehic
         $attendance = $db->prepare('UPDATE aya_attendances
                                     SET ClassID = :classId, VehicleID = :vehicleId, Remark = :remark
                                     WHERE phpBBUserID = :userId
-                                      AND AttendeeID = :attendeeId');
+                                      AND AttendanceID = :attendanceId');
         $attendance->bindValue(':classId', $classID, PDO::PARAM_INT);
         $attendance->bindValue(':vehicleId', $vehicleID, PDO::PARAM_INT);
         $attendance->bindValue(':remark', (empty($_POST['Remark']) ? null : $_POST['Remark']), PDO::PARAM_STR);
         $attendance->bindValue(':userId', $phpBBUserID, PDO::PARAM_INT);
-        $attendance->bindValue(':attendeeId', $attendeeID, PDO::PARAM_INT);
+        $attendance->bindValue(':attendanceId', $attendeeID, PDO::PARAM_INT);
         $attendance->execute();
         echo $attendance->rowCount();
         $attendance = null;

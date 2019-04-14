@@ -21,8 +21,8 @@ try
   $attendance = $db->prepare('SELECT VehicleID, ClassID, Remark
                               FROM aya_attendances
                               WHERE Deleted = FALSE
-                                AND AttendeeID = :id');
-  $attendance->bindValue(':id', $_POST['AttendeeID'], PDO::PARAM_INT);
+                                AND AttendanceID = :id');
+  $attendance->bindValue(':id', $_POST['AttendanceID'], PDO::PARAM_INT);
   $attendance->execute();
   $ayaAttendance = $attendance->fetch(PDO::FETCH_ASSOC);
   $attendance = null;
