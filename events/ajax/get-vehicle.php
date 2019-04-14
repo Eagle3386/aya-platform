@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -20,8 +20,7 @@ try
 {
   $vehicle = $db->prepare('SELECT M.ManufacturerID, V.Model, V.Color, V.RegistrationNumber, V.Components
                            FROM aya_vehicles V
-                           JOIN aya_vehicles_manufacturers M
-                             ON V.ManufacturerID = M.ManufacturerID
+                           JOIN aya_manufacturers M ON M.ManufacturerID = V.ManufacturerID
                            WHERE V.Deleted = FALSE
                              AND V.VehicleID = :id');
   $vehicle->bindValue(':id', $_POST['VehicleID'], PDO::PARAM_INT);
@@ -31,7 +30,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $db = null;

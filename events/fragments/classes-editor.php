@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -30,13 +30,21 @@ try
   $class->execute();
   $ayaClass = $class->fetch(PDO::FETCH_ASSOC);
   $class = null;
+
+  $ayaNextKey = 99;
+  $nextKey = $db->prepare('SELECT MAX(SortKey) + 1 AS NextKey
+                           FROM aya_classes');
+  $nextKey->execute();
+  $nextKey->bindColumn('NextKey', $ayaNextKey, PDO::PARAM_INT);
+  $nextKey->fetch(PDO::FETCH_BOUND);
+  $nextKey = null;
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
-echo '<div id="class-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
+echo '<div id="classes-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -52,7 +60,8 @@ echo '<div id="class-editor-dialog" class="modal fade" role="dialog" tabindex="-
                 <div class="form-group">
                   <div class="input-group">
                     <div class="input-group-addon aya-label aya-label-event">Klassenname</div>
-                    <input id="class-name" class="form-control" maxlength="30" placeholder="Premier 5.000" type="text"
+                    <input id="class-name" class="form-control" maxlength="30"
+                           placeholder="' . (empty($ayaClass['Name']) ? 'Premier 5.000' : $ayaClass['Name']) . '" type="text"
                            value="' . (empty($ayaClass['Name']) ? '' : $ayaClass['Name']) . '" />
                     <div class="input-group-addon">
                       <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
@@ -83,8 +92,8 @@ echo '<label class="btn btn-aya-default btn-aya-toggle' . ($isLimited ? ' active
                 <div class="form-group">
                   <div class="input-group">
                     <div class="input-group-addon aya-label">Sortierung</div>
-                    <input id="class-sort-key" class="form-control text-right" max="99" min="0" placeholder="99" step="1"
-                           title="Zahl zwischen 1 und 99." type="number" value="' . (empty($ayaClass['SortKey']) ? '' : $ayaClass['SortKey']) . '" />
+                    <input id="class-sort-key" class="form-control text-right" max="99" min="0" placeholder="' . $ayaNextKey . '" step="1"
+                           title="Zahl zwischen 1 und 99." type="number" value="' . (empty($ayaClass['SortKey']) ? $ayaNextKey : $ayaClass['SortKey']) . '" />
                     <div class="input-group-addon">
                       <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                     </div>

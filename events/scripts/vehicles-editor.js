@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -17,6 +17,7 @@ var components = $('#vehicle-components');
 var componentsPlaceholder = 'Nur in Klassen mit Preisbegrenzung angeben!';
 var deleteButton = $(delete_);
 var displayName = 'Fahrzeug';
+var inputsPanel = $('#' + editor.slice(1) + inputs_);
 var manufacturerSelector = $('#vehicle-manufacturer');
 var model = $('#vehicle-model');
 var registrationNumber = $('#vehicle-registration-number');
@@ -44,6 +45,7 @@ function getPayload() {
 
 function loadedCallback() {
   attachEventHandler(".form-control");
+  enableDelete(vehicleSelector);
 
   $.ajax({
     dataType: 'script',
@@ -59,7 +61,7 @@ function loadedCallback() {
       return false;
     }
   }).on('paste', function(event) {
-      // TODO: Implement prevention
+    // TODO: Implement prevention
   });
 
   $('[data-toggle="tooltip"]').tooltip({
@@ -76,58 +78,9 @@ function loadedCallback() {
     }
   });
 
-  deleteButton.click(function() {
-    deleteButton.prop('disabled', 'disabled');
-
-    $.ajax({
-      cache: false,
-      data: {
-        VehicleID: vehicleSelector.val()
-      },
-      method: 'POST',
-      url: ajaxFolder + 'delete-vehicle.php'
-    }).done(function(response) {
-      // TODO: Refactor this & unify it with bootstrap-dialog.js!
-      if (response > 0) {
-        var currentSelection = $('#vehicle-selector option:selected');
-        vehicleSelector.selectpicker('val', currentSelection.siblings('[value!=""]').first().val());
-        currentSelection.remove();
-        vehicleSelector.selectpicker('refresh');
-        vehicleSelector.trigger('changed.bs.select');
-
-        deleteButton.prop('disabled', false);
-
-        var resultPanel = $(result);
-        resultPanel.removeClass('alert-danger').addClass('alert-success');
-        resultPanel.html('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Fahrzeug erfolgreich gelöscht.');
-
-        hideModal();
-      } else {
-        resultPanel.removeClass('alert-success').addClass('alert-danger');
-
-        var errorReason = 'Bitte Angaben prüfen';
-        var isDisabled = 'disabled';
-        switch (response) {
-          case 'IN_USE':
-            errorReason = 'Fahrzeug bereits angemeldet';
-            break;
-
-          default:
-            isDisabled = false;
-            break;
-        }
-        resultPanel.html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> Fehler bei der Löschung. ' + errorReason + '!');
-
-        deleteButton.prop('disabled', isDisabled);
-      }
-
-      resultPanel.slideDown();
-    });
-  });
-
   manufacturerSelector.selectpicker()
     .on('loaded.bs.select', function(event, clickedIndex, newValue, oldValue) {
-      var that = $(this);
+      let that = $(this);
       $.getJSON(ajaxFolder + 'get-manufacturers.php', function(response) {
         that.html('');
         $.each(response, function(key, value) {
@@ -144,25 +97,17 @@ function loadedCallback() {
 
   vehicleSelector.selectpicker()
     .on('loaded.bs.select', function(event, clickedIndex, newValue, oldValue) {
-      var that = $(this);
-      that.selectpicker('val', that[0].dataset.initialVehicle);
+      let that = $(this);
+      that.selectpicker('val', that.data('initial-vehicle'));
+      enableCreateOnDefault(that, getVehicle);
       enableDeleteOnNonDefaults(that);
     }).on('changed.bs.select', function(event, clickedIndex, newValue, oldValue) {
       clearInputs();
-      var that = $(this);
-      that[0].dataset.initialVehicle = event.target.value;
+      let that = $(this);
+      that.data('initial-vehicle', event.target.value);
+      enableCreateOnDefault(that, getVehicle);
       enableDeleteOnNonDefaults(that);
-
-      if (that.selectpicker('val') == 0) {
-        mode = 'post';
-        saveButton.text(createLabel);
-      } else {
-        mode = 'put';
-        getVehicle();
-        saveButton.text(updateLabel);
-      }
-
-      enableSaveOnModified(event.target.value, this.dataset.initialVehicle);
+      enableSaveOnModified(event.target.value, that.data('initial-vehicle'));
     }).on('refreshed.bs.select', function(event, clickedIndex, newValue, oldValue) {
       enableDeleteOnNonDefaults($(this));
     });
@@ -178,7 +123,7 @@ function getVehicle() {
     url: ajaxFolder + 'get-vehicle.php'
   }).done(function(response) {
     if (response.result !== false) {
-      manufacturerSelector.selectpicker('val', response.ManufacturerID)[0].dataset.initialManufacturer = response.ManufacturerID;
+      manufacturerSelector.selectpicker('val', response.ManufacturerID).data('initial-manufacturer', response.ManufacturerID);
       model.prop('placeholder', response.Model).val(response.Model);
       color.prop('placeholder', response.Color).val(response.Color);
       registrationNumber.prop('placeholder', response.RegistrationNumber).val(response.RegistrationNumber);

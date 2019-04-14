@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -42,20 +42,17 @@ echo '<div id="aya-vehicle-menu" class="btn-group" role="group">
   </a>
   <ul class="dropdown-menu">
     <li>
-      <a id="attendance-editor" href="#">
+      <a id="attendances-editor" href="#">
         <span class="glyphicon glyphicon-calendar"></span> Teilnahmen
       </a>
     </li>
     <li>
-      <a id="vehicle-editor" href="#">
+      <a id="vehicles-editor" href="#">
         <span class="glyphicon glyphicon-bed"></span> Fahrzeuge
       </a>
     </li>
   </ul>
-</div>
-<!--<a class="btn btn-aya-default navbar-btn" href="./ranking.php" role="button">
-  <span class="glyphicon glyphicon-king"></span> Rangliste
-</a>-->';
+</div>';
 
 if ($isJuror)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -17,6 +17,7 @@ var displayName = 'Mängel';
 function getPayload() {
   return {
     InstallFlaws: $('#flaw-details').val(),
+    LastFlawsUpdate: $('#flaw-date').val() + ' ' + $('#flaw-time').val(),
     UserID: $('#flaw-user').data('user-id'),
     VehicleID: $('#flaw-vehicle').data('vehicle-id')
   };

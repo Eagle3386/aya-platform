@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -40,7 +40,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 //$export = PHPExcel_IOFactory::load('../export/Attendances.xlsx');
@@ -77,24 +77,15 @@ $export->setActiveSheetIndexByName("Teilnehmer")->getStyle('B2:O2')->getFont()->
 try
 {
   $attendees = $db->prepare("SELECT P.pf_vor_nachname_ AS LastName, P.pf_vorname AS FirstName, U.username AS Nickname,
-                             CONCAT(M.Name, ' ', V.Model) AS Vehicle, V.Color, V.RegistrationNumber,
-                             P.pf_handynr AS PhoneNumber, P.pf_teamname AS TeamName, U.user_email AS MailAddress, V.Components, V.InstallFlaws,
-                             A.Remark, A.ClassID, C.Name AS ClassName,
-                             CASE
-                               WHEN U.group_id > 7 THEN 'ja'
-                               ELSE 'nein'
-                             END AS IsAyaMember
+                               CONCAT(M.Name, ' ', V.Model) AS Vehicle, V.Color, V.RegistrationNumber, P.pf_handynr AS PhoneNumber,
+                               P.pf_teamname AS TeamName, U.user_email AS MailAddress, V.Components, V.InstallFlaws, A.Remark, A.ClassID,
+                               C.Name AS ClassName, (CASE WHEN U.group_id > 7 THEN 'ja' ELSE 'nein' END) AS IsAyaMember
                              FROM aya_attendees A
-                             JOIN aya_classes C
-                               ON A.ClassID = C.ClassID
-                             JOIN aya_vehicles V
-                               ON A.VehicleID = V.VehicleID
-                             JOIN aya_vehicles_manufacturers M
-                               ON V.ManufacturerID = M.ManufacturerID
-                             JOIN phpbb_users U
-                               ON A.phpBBUserID = U.user_id
-                             JOIN phpbb_profile_fields_data P
-                               ON U.user_id = P.user_id
+                             JOIN aya_classes C ON C.ClassID = A.ClassID
+                             JOIN aya_vehicles V ON V.VehicleID = A.VehicleID
+                             JOIN aya_manufacturers M ON M.ManufacturerID = V.ManufacturerID
+                             JOIN phpbb_users U ON U.user_id = A.phpBBUserID
+                             JOIN phpbb_profile_fields_data P ON P.user_id = U.user_id
                              WHERE A.Deleted = FALSE
                                AND A.EventID = :id
                              ORDER BY A.ClassID ASC, U.username ASC");
@@ -135,7 +126,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $db = null;

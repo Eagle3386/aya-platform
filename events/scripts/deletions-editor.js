@@ -12,11 +12,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-var displayName = 'Farbe';
+var displayName = 'Einträge';
 
 function getPayload() {
+  let list = $('#deletion-entities');
+  let deletableItems = [];
+  list.children().each(function() {
+    deletableItems.push(this.dataset.entityId);
+  });
   return {
-    ColorID: $('#color-form').data('color-id'),
-    Name: $('#color-name').val()
+    'Entities': JSON.stringify(deletableItems),
+    'Type': list.data('entities-type')
   };
 }

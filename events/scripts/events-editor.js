@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -13,7 +13,7 @@
  */
 
 var displayName = 'Wettbewerb';
-var locationSelector = $('#location-selector');
+let locationSelector = $('#location-selector');
 
 function getPayload() {
   return {

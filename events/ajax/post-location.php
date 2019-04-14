@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -45,7 +45,7 @@ if (!empty($city) && !empty($coordinates[1]) && !empty($coordinates[2]) && !empt
   }
   catch (PDOException $exception)
   {
-    print 'Error: ' . $exception->getMessage() . '<br />';
+    ShowException($exception);
   }
 
   if ($exists < 1)
@@ -70,7 +70,7 @@ if (!empty($city) && !empty($coordinates[1]) && !empty($coordinates[2]) && !empt
     }
     catch (PDOException $exception)
     {
-      print 'Error: ' . $exception->getMessage() . '<br />';
+      ShowException($exception);
     }
   }
   else

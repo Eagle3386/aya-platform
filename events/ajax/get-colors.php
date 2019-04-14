@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -20,7 +20,7 @@ try
 {
   // Bootstrap-TypeAhead requires lower-case field names
   $colors = $db->prepare('SELECT ColorID AS id, Name AS name
-                          FROM aya_vehicles_colors
+                          FROM aya_colors
                           WHERE Deleted = FALSE
                           ORDER BY Name ASC');
   $colors->execute();
@@ -29,7 +29,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $db = null;

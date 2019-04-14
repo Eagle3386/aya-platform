@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -92,15 +92,9 @@ address {
   background-color: #D5B900;
 }
 
-/*
-.navbar-brand {
-  padding-bottom: 5px !important;
-  padding-top: 5px !important;
-}*/
 .navbar-brand > img {
   margin-top: -1px;
   max-height: 20px;
-  /*max-width: 270px;*/
 }
 
 .progress {
@@ -138,12 +132,6 @@ address {
 /***
  * Bootstrap overrides - END
  ***/
-
-@keyframes heartbeat {
-   20% { font-size: .9em; }
-   30% { font-size: .8em; }
-   40% { font-size:  1em; }
-}
 
 body {
   padding-right: 0 !important;
@@ -245,7 +233,6 @@ span[class$="-label"] {
   color: #C11B17;
 }
 .footer > p > span[title="love"] {
-  animation: heartbeat 2s infinite alternate;
   color: #E41B17;
 }
 .footer > p > span[title="sweat"] {
@@ -267,10 +254,6 @@ span[class$="-label"] {
 .panel-aya > .panel-heading + .panel-collapse > .panel-body {
   border-top-color: #F0E696;
 }
-/*.panel-aya > .panel-heading .badge {
-  background-color: #574900;
-  color: #F0E696;
-}*/
 .panel-aya > .panel-body.panel-scrollable,
 .panel-aya > .panel-body.panel-scrollable-xl {
   overflow-y: scroll;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -12,196 +12,141 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-$(document).ready(function() {
-  var panelActionCreate = '-create';
-  var panelActionUpdate = '-update';
-  var panelActionDelete = '-delete';
-  var panelActionExport = '-export';
-  var panelClasses = '#classes';
-  var panelColors = '#colors';
-  var panelEvents = '#events';
-  var panelEventsYearSelector = $(panelEvents + '-year');
-  var panelLocations = '#locations';
-  var panelManufacturers = '#manufacturers';
+let actionCreate = 'create';
+let actionDelete = 'delete';
+let actionExport = 'export';
+let actionUpdate = 'update';
+let panelEvents = 'events';
+let panelEventsYear = '#' + panelEvents + '-year';
 
-  function deleteItems(panel, itemIDSource, finishCallback) {
-    var confirmed = false;
-    if (confirmed) {
-      var deletableItems = [];
-      $(panel + ' input:checked').each(function() {
-        deletableItems.push($(this).data(itemIDSource));
-      });
+function createFragmentLoader(panel, action) {
+  switch (action) {
+    case actionCreate:
+      return function() {
+        fragmentLoader(panel, 'post', null, null);
+      };
 
-      $.ajax({
-        cache: false,
-        data: {
-          Items: deletableItems
-        },
-        method: 'POST',
-        url: ajaxFolder + 'delete-' + itemIDSource.split('-')[0] + 's.php'
-      }).done(function(response) {
-        if (response > 0) {
-          showMessage(displayName, 'delete', response, (response > 0), finishCallback);
-          hideModal(finishCallback);
-        } else {
-          switch (response) {
-            case 'WRONG_COUNT':
-              errorReason = 'Nicht alle Teilnahmen löschbar';
-              break;
+    case actionDelete:
+      return function() {
+        deleteItems(panel, null);
+      };
 
-            default:
-              break;
+    case actionExport:
+      return panel === panelEvents
+        ? function() {
+            let exportEvents = $(this);
+            exportEvents.prop('disabled', 'disabled');
+            $('#' + panel + ' input:checked').each(function() {
+              window.open(ajaxFolder + 'get-attendances.php?EventID=' + $(this).data(panelEvents.slice(0, -1) + '-id'), '_blank');
+              /* If the running webserver has enough power (and most importantly memory), try this instead:
+              let eventId = $(this).data(panelEvents.slice(0, -1) + '-id');
+              $.ajax({
+                data: {
+                  EventID: eventId
+                },
+                dataType: 'native',
+                url: ajaxFolder + 'get-attendances.php',//?EventID=' + eventId,
+                xhrFields: {
+                  responseType: 'blob'
+                },
+                success: function(blob) {
+                  console.log(JSON.stringify(blob.size));
+                  let link = document.createElement('a');
+                  link.href = window.URL.createObjectURL(blob);
+                  link.download = "Teilnehmerliste - " + new Date() + " - " + TITLE + ".xlsx";
+                  link.click();
+                }
+              });*/
+            });
+            exportEvents.prop('disabled', false);
           }
-          showMessage(displayName, 'delete' + errorReason + '!', false);
-        }
-      });
-    }
+        : function() {
+          };
+
+    case actionUpdate:
+      return function() {
+        fragmentLoader(panel, 'put', panel, null);
+      };
   }
+}
 
-  enableSelectionByRowClick(panelClasses);
-  enableSelectionByRowClick(panelColors);
-  enableSelectionByRowClick(panelLocations);
-  enableSelectionByRowClick(panelManufacturers);
+function createPanelActions(panels, actions) {
+  $.each(panels, function(index, panel) {
+    if (panel !== panelEvents) {
+      enableSelectionByRowClick(panel);
+    }
 
-  $(panelClasses + panelActionCreate).click(function() {
-    fragmentLoader('class', 'post', null, null);
-  });
-
-  $(panelClasses + panelActionDelete).click(function() {
-    $(panelClasses + ' input:checked').each(function() {
-      $(this).data('class-id');
+    $.each(actions, function(index, action) {
+      $('#' + panel + '-' + action).click(createFragmentLoader(panel, action));
     });
-    // ...
   });
+}
 
-  $(panelClasses + panelActionUpdate).click(function() {
-    fragmentLoader('class', 'put', panelClasses, null);
-  });
-
-  $(panelColors + panelActionCreate).click(function() {
-    fragmentLoader('color', 'post', null, null);
-  });
-
-  $(panelColors + panelActionDelete).click(function() {
-    $(panelColors + ' input:checked').each(function() {
-      $(this).data('color-id');
+function deleteItems(panel, finishCallback) {
+  let deletableItems = [];
+  $('#' + panel + ' input:checked').each(function() {
+    let item = $(this);
+    deletableItems.push({
+      'Id': item.data(panel.slice(0, (panel.endsWith('es') ? -2 : -1)) + '-id'),
+      'Name': item.closest('tr').find('td:nth-child(' + (panel === panelEvents ? 3 : 2) + ')').text()
     });
-    // ...
   });
 
-  $(panelColors + panelActionUpdate).click(function() {
-    fragmentLoader('color', 'put', panelColors, null);
-  });
-
-  $(panelEvents + panelActionCreate).click(function() {
-    fragmentLoader('event', 'post', null, null);
-  });
-
-  $(panelEvents + panelActionDelete).click(function() {
-    deleteItem(panelEvents, 'event-id', null);
-  });
-
-  $(panelEvents + panelActionUpdate).click(function() {
-    fragmentLoader('event', 'put', panelEvents, null);
-  });
-
-  $(panelEvents + panelActionExport).click(function() {
-    var exportEvents = $(this);
-    exportEvents.prop('disabled', 'disabled');
-
-    $(panelEvents + ' input:checked').each(function() {
-      window.open(ajaxFolder + 'get-attendances.php?EventID=' + $(this).data('event-id'), '_blank');
-      /* If the running webserver has enough power (and most importantly memory), try this instead:
-      var eventId = $(this).data('event-id');
-      $.ajax({
-        data: {
-          EventID: eventId
-        },
-        dataType: 'native',
-        url: ajaxFolder + 'get-attendances.php',//?EventID=' + eventId,
-        xhrFields: {
-          responseType: 'blob'
-        },
-        success: function(blob) {
-          console.log(JSON.stringify(blob.size));
-          var link = document.createElement('a');
-          link.href = window.URL.createObjectURL(blob);
-          link.download = "Teilnehmerliste - " + new Date() + " - " + TITLE + ".xlsx";
-          link.click();
-        }
-      });*/
-    });
-
-    exportEvents.prop('disabled', false);
-  });
-
-  panelEventsYearSelector.selectpicker()
-    .on('loaded.bs.select', function(event, clickedIndex, newValue, oldValue) {
-      var that = $(this);
-      $.ajax({
-        cache: false,
-        data: {
-          'EventYear': that.selectpicker('val'),
-          'ShowDeleted': true
-        },
-        method: 'POST',
-        url: ajaxFolder + 'get-events.php'
-      }).done(function(response) {
-        let events = $(panelEvents + ' > tbody');
-        events.html('');
-        let isBreakShown = false;
-        $.each(response, function(key, value) {
-          let isFinished = false;//(date('Y-m-d H:i:s') > date($event["Date"]));
-          if (isFinished && !isBreakShown) {
-            events.append('<tr><td colspan="5"><fieldset><legend><p class="text-center">Archivierte Veranstaltungen</p></legend></fieldset></td></tr>');
-            isBreakShown = true;
-          }
-
-          events.append('<tr><td class="text-center"><input data-event-id="' + value.EventID + '" type="checkbox" /></td>'
-            + '<td class="text-center text-nowrap">' + (value.Deleted ? '<del>' : '') + value.Date + (value.Deleted ? '</del>' : '') + '</td>'
-            + '<td class="text-center">' + (value.Deleted ? '<del>' : '') + value.Name + (value.Deleted ? '</del>' : '') + '</td>'
-            + '<td class="text-center">' + (value.Deleted ? '<del>' : '') + value.City + (value.Deleted ? '</del>' : '') + '</td>'
-            + '<td class="text-center text-nowrap">' + (value.Deleted ? '<del>' : '') + value.LastUpdate + (value.Deleted ? '</del>' : '')
-            + '</td></tr>');
-        });
-        that.selectpicker('refresh');
-      }).done(function() {
-        enableSelectionByRowClick(panelEvents);
-        that.selectpicker('val', that[0].dataset.initialEventYear);
+  fragmentLoader('deletions', 'delete', {
+      'entities': deletableItems,
+      'type': panel
+    },
+    function() {
+      $.each(deletableItems, function() {
+        $(this).closest('tr').remove();
       });
+    });
+}
+
+function getEvents(yearSelector) {
+  let selectedYear = yearSelector.selectpicker('val');
+  $.ajax({
+    cache: false,
+    data: {
+      'EventYear': selectedYear,
+      'ShowDeleted': true
+    },
+    method: 'POST',
+    url: ajaxFolder + 'get-' + panelEvents + '.php'
+  }).done(function(response) {
+    let currentDate = new Date(Date.now());
+    let events = $('#' + panelEvents + ' > tbody');
+    events.html('');
+    $(panelEventsYear).text(selectedYear);
+    let isSeparatorShown = false;
+    $.each(response, function(index, event) {
+      if (currentDate.getFullYear() == selectedYear && currentDate > Date.parse(event.Date) && !isSeparatorShown) {
+        events.append('<tr><td colspan="5"><fieldset><legend><p class="text-center">Archivierte Veranstaltungen</p></legend></fieldset></td></tr>');
+        isSeparatorShown = true;
+      }
+
+      events.append('<tr><td class="text-center"><input data-event-id="' + event.EventID + '" type="checkbox" /></td>'
+        + '<td class="text-center text-nowrap">' + (event.Deleted ? '<del>' : '') + event.Date + (event.Deleted ? '</del>' : '') + '</td>'
+        + '<td class="text-center">' + (event.Deleted ? '<del>' : '') + event.Name + (event.Deleted ? '</del>' : '') + '</td>'
+        + '<td class="text-center">' + (event.Deleted ? '<del>' : '') + event.City + (event.Deleted ? '</del>' : '') + '</td>'
+        + '<td class="text-center text-nowrap">' + (event.Deleted ? '<del>' : '') + event.LastUpdate + (event.Deleted ? '</del>' : '')
+        + '</td></tr>');
+    });
+    yearSelector.selectpicker('refresh');
+  }).done(function() {
+    enableSelectionByRowClick(panelEvents);
+  });
+}
+
+$(document).ready(function() {
+  createPanelActions([ 'classes', 'colors', panelEvents, 'locations', 'manufacturers' ], [ actionCreate, actionDelete, actionExport, actionUpdate ]);
+
+  $(panelEventsYear + '-selector').selectpicker()
+    .on('loaded.bs.select', function(event, clickedIndex, newValue, oldValue) {
+      getEvents($(this));
     }).on('changed.bs.select', function(event, clickedIndex, newValue, oldValue) {
-      //TODO: Check if needed: enableSaveOnModified(event.target.value, this.dataset.initialEventYear);
+      getEvents($(this));
     });
-
-  $(panelLocations + panelActionCreate).click(function() {
-    fragmentLoader('location', 'post', null, null);
-  });
-
-  $(panelLocations + panelActionDelete).click(function() {
-    $(panelLocations + ' input:checked').each(function() {
-      $(this).data('location-id');
-    });
-    // ...
-  });
-
-  $(panelLocations + panelActionUpdate).click(function() {
-    fragmentLoader('location', 'put', panelLocations, null);
-  });
-
-  $(panelManufacturers + panelActionCreate).click(function() {
-    fragmentLoader('manufacturer', 'post', null, null);
-  });
-
-  $(panelManufacturers + panelActionDelete).click(function() {
-    $(panelManufacturers+ ' input:checked').each(function() {
-      $(this).data('manufacturer-id');
-    });
-    // ...
-  });
-
-  $(panelManufacturers + panelActionUpdate).click(function() {
-    fragmentLoader('manufacturer', 'put', panelManufacturers, null);
-  });
 
   $("[class$=-input-components]")
     .on('keypress', function(event) {
@@ -209,6 +154,6 @@ $(document).ready(function() {
         return false;
       }
     }).on('paste', function(event) {
-
+      // TODO: Implement prevention
     });
 });

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -30,10 +30,10 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
-echo '<div id="attendance-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
+echo '<div id="attendances-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -54,12 +54,9 @@ try
 {
   $attendances = $db->prepare('SELECT A.AttendeeID, A.EventID, E.Date, E.Name AS EventName, C.Name AS ClassName, V.RegistrationNumber
                                FROM aya_attendees A
-                               JOIN aya_events E
-                                 ON A.EventID = E.EventID
-                               JOIN aya_classes C
-                                 ON A.ClassID = C.ClassID
-                               JOIN aya_vehicles V
-                                 ON A.VehicleID = V.VehicleID
+                               JOIN aya_events E ON E.EventID = A.EventID
+                               JOIN aya_classes C ON C.ClassID = A.ClassID
+                               JOIN aya_vehicles V ON V.VehicleID = A.VehicleID
                                WHERE A.Deleted = FALSE
                                  AND A.phpBBUserID = :id
                                  AND DATEDIFF(E.Date, CURDATE()) > -1
@@ -71,7 +68,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $attendancesList = '';
@@ -107,8 +104,7 @@ try
   $attendee = $db->prepare("SELECT U.username AS Nickname, CONCAT(P.pf_vor_nachname_, ', ', P.pf_vorname) AS RealName,
                             P.pf_teamname AS TeamName, P.pf_handynr AS PhoneNumber
                             FROM phpbb_users U
-                            JOIN phpbb_profile_fields_data P
-                              ON U.user_id = P.user_id
+                            JOIN phpbb_profile_fields_data P ON P.user_id = U.user_id
                             WHERE U.user_id = :id");
   $attendee->bindValue(':id', $phpBBUserID, PDO::PARAM_INT);
   $attendee->execute();
@@ -117,7 +113,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 echo '              </select>
@@ -191,8 +187,7 @@ try
 {
   $vehicles = $db->prepare("SELECT V.VehicleID, CONCAT(M.Name, ' ', V.Model, ' (', V.RegistrationNumber, ')') AS VehicleName
                             FROM aya_vehicles V
-                            JOIN aya_vehicles_manufacturers M
-                              ON V.ManufacturerID = M.ManufacturerID
+                            JOIN aya_manufacturers M ON M.ManufacturerID = V.ManufacturerID
                             WHERE V.Deleted = FALSE
                               AND V.phpBBUserID = :id
                             ORDER BY V.RegistrationNumber");
@@ -208,7 +203,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 echo '</select>
@@ -254,7 +249,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $classes = null;

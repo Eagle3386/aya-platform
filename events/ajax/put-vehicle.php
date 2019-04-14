@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -29,7 +29,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 if ($exists < 1)
@@ -45,7 +45,7 @@ if ($exists < 1)
       $update->bindValue(':manufacturerId',  $_POST['ManufacturerID'], PDO::PARAM_INT);
       $update->bindValue(':model', $_POST['Model'], PDO::PARAM_STR);
       $update->bindValue(':color', $_POST['Color'], PDO::PARAM_STR);
-      $update->bindValue(':number', $_POST['RegistrationNumber'], PDO::PARAM_STR);
+      $update->bindValue(':number', strtoupper($_POST['RegistrationNumber']), PDO::PARAM_STR);
       $update->bindValue(':components', (empty($_POST['Components']) ? null : str_replace(array("\r\n", "\r", "\n"), ' ', $_POST['Components'])),
                          PDO::PARAM_STR);
       $update->bindValue(':userId', $phpBBUserID, PDO::PARAM_INT);
@@ -56,7 +56,7 @@ if ($exists < 1)
     }
     catch (PDOException $exception)
     {
-      print 'Error: ' . $exception->getMessage() . '<br />';
+      ShowException($exception);
     }
   }
   else

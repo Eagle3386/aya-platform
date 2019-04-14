@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -18,11 +18,10 @@ require_once('db-initialization.php');
 try
 {
   $event = $db->prepare("SELECT E.EventID, E.Name, E.Date, E.Description AS EventDescription, E.LastUpdate,
-                           CONCAT_WS(' ', CONCAT(CONCAT_WS(' ', L.Street, L.StreetNumber), ','), L.Zip, L.City) AS Address,
-                           L.Description AS LocationDescription, AsText(L.Coordinates) AS Coordinates, E.ClassLimits
+                          CONCAT_WS(' ', CONCAT(CONCAT_WS(' ', L.Street, L.StreetNumber), ','), L.Zip, L.City) AS Address,
+                          L.Description AS LocationDescription, AsText(L.Coordinates) AS Coordinates, E.ClassLimits
                          FROM aya_events E
-                         JOIN aya_locations L
-                           ON E.LocationID = L.LocationID
+                         JOIN aya_locations L ON L.LocationID = E.LocationID
                          WHERE EventID = :id");
   $event->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
   $event->execute();
@@ -31,7 +30,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $title = $ayaEvent['Name'] . ' — AYA-Teilnahme 4.1';
@@ -115,7 +114,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 ?>
           <span class="glyphicon glyphicon-list"></span> Teilnehmer: <?=$attendees;?> — Stand: <?=date('d.m.Y, H:i');?>
@@ -150,10 +149,10 @@ try
     }
     catch (PDOException $exception)
     {
-      print 'Error: ' . $exception->getMessage() . '<br />';
+      ShowException($exception);
     }
 
-    $attendeesLimit = $classLimits[($class['ClassID'])] + 0; // Workaround for undefined class limits // TODO: Check, if workaround is still needed!
+    $attendeesLimit = $classLimits[($class['ClassID'])] + 0; // Workaround for undefined class limits
     $slotsFree = ($attendeesLimit - $attendeesClass);
     echo '<div class="col-md-5ths">
             <fieldset>
@@ -176,16 +175,14 @@ try
       {
         $attendees = $db->prepare('SELECT A.AttendeeID, U.username AS Username, P.pf_teamname AS TeamName
                                    FROM aya_attendees A
-                                   JOIN phpbb_users U
-                                     ON A.phpBBUserID = U.user_id
-                                   JOIN phpbb_profile_fields_data P
-                                     ON A.phpBBUserID = P.user_id
-                                   WHERE A.EventID = :eventId
-                                     AND A.Deleted = FALSE
+                                   JOIN phpbb_users U ON U.user_id = A.phpBBUserID
+                                   JOIN phpbb_profile_fields_data P ON P.user_id = A.phpBBUserID
+                                   WHERE A.Deleted = FALSE
                                      AND A.ClassID = :classId
+                                     AND A.EventID = :eventId
                                    ORDER BY U.username ASC');
-        $attendees->bindValue(':eventId', $ayaEvent['EventID'], PDO::PARAM_INT);
         $attendees->bindValue(':classId', $class['ClassID'], PDO::PARAM_INT);
+        $attendees->bindValue(':eventId', $ayaEvent['EventID'], PDO::PARAM_INT);
         $attendees->execute();
 
         while ($attendee = $attendees->fetch(PDO::FETCH_ASSOC))
@@ -210,7 +207,7 @@ try
       }
       catch (PDOException $exception)
       {
-        print 'Error: ' . $exception->getMessage() . '<br />';
+        ShowException($exception);
       }
 
       echo '</ul>';
@@ -226,7 +223,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $classes = null;

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -18,13 +18,14 @@ require_once('../db-initialization.php');
 try
 {
   $update = $db->prepare('UPDATE aya_vehicles
-                          SET InstallFlaws = :flaws
+                          SET InstallFlaws = :flaws, LastFlawsUpdate = :flawsUpdate
                           WHERE phpBBUserID = :userId
                             AND VehicleID = :vehicleId');
   $update->bindValue(':flaws', (empty($_POST['InstallFlaws'])
                                       ? null
                                       : str_replace(array("\r\n", "\r", "\n"), ' ', $_POST['InstallFlaws'])),
                      PDO::PARAM_STR);
+  $update->bindValue(':flawsUpdate', date('Y-m-d H:i:s', strtotime($_POST['LastFlawsUpdate'])), PDO::PARAM_STR);
   $update->bindValue(':userId', $phpBBUserID, PDO::PARAM_INT);
   $update->bindValue(':vehicleId', $_POST['VehicleID'], PDO::PARAM_INT);
   $update->execute();
@@ -33,7 +34,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $update = null;

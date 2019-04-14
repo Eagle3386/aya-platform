@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -21,7 +21,7 @@ if (!$isJuror)
   die('Only jurors beyond this point! Sorry.');
 }
 
-$title = 'AYA — Jurorenbereich 1.5';
+$title = 'AYA — Jurorenbereich 1.8';
 require_once('fragments/header.php');
 
 $showDistance = false;
@@ -44,7 +44,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 ?>
 <div class="container-fluid">
@@ -53,7 +53,7 @@ catch (PDOException $exception)
     <div class="col-md-10">
       <div class="panel panel-aya">
         <div class="panel-heading">
-          <span class="glyphicon glyphicon-minus-sign "></span> Einbaumängel — <?=$ayaEvent['Name'] . ' ('
+          <span class="glyphicon glyphicon-minus-sign"></span> Einbau-Mängel — <?=$ayaEvent['Name'] . ' ('
             . date('d.m.Y, H:i', strtotime($ayaEvent['Date'])) . ')';?>
         </div>
         <div class="panel-body panel-scrollable-xl">
@@ -66,39 +66,33 @@ catch (PDOException $exception)
                   <th class="text-center">Realname</th>
                   <th class="text-center">Kennzeichen</th>
                   <th class="text-center">Fahrzeug</th>
-                  <th class="text-center">Mängelfrei</th>
+                  <th class="text-center">Status</th>
+                  <th class="text-center">Prüfdatum</th>
                 </tr>
               </thead>
               <tbody>
 <?php
 try
 {
-  $vehicles = $db->prepare("SELECT C.ClassID, A.phpBBUserID, A.VehicleID, C.Name AS ClassName,
-                            CONCAT(P.pf_vor_nachname_, ', ', P.pf_vorname) AS RealName, V.RegistrationNumber,
-                            CONCAT(M.Name, ' ', V.Model) AS VehicleName,
-                            CASE WHEN LENGTH(V.InstallFlaws) > 0 THEN true ELSE false END AS IsFlawed,
-                            CHAR_LENGTH(V.InstallFlaws) AS Flawed
+  $vehicles = $db->prepare("SELECT (CASE WHEN LENGTH(V.InstallFlaws) > 0 THEN true ELSE false END) AS IsFlawed, C.ClassID, A.phpBBUserID, A.VehicleID,
+                            C.Name AS ClassName, CONCAT(P.pf_vor_nachname_, ', ', P.pf_vorname) AS RealName, V.RegistrationNumber,
+                            CONCAT(M.Name, ' ', V.Model) AS VehicleName, DATE_FORMAT(V.LastFlawsUpdate, '%Y-%m-%d %H:%i') AS Date
                             FROM aya_attendees A
-                            JOIN aya_classes C
-                              ON A.ClassID = C.ClassID
-                            JOIN phpbb_profile_fields_data P
-                              ON A.phpBBUserID = P.user_id
-                            JOIN aya_vehicles V
-                              ON A.VehicleID = V.VehicleID
-                            JOIN aya_vehicles_manufacturers M
-                              ON V.ManufacturerID = M.ManufacturerID
-                            JOIN aya_events E
-                              ON A.EventID = E.EventID
+                            JOIN aya_classes C ON C.ClassID = A.ClassID
+                            JOIN phpbb_profile_fields_data P ON P.user_id = A.phpBBUserID
+                            JOIN aya_vehicles V ON V.VehicleID = A.VehicleID
+                            JOIN aya_manufacturers M ON M.ManufacturerID = V.ManufacturerID
+                            JOIN aya_events E ON E.EventID = A.EventID
                             WHERE A.Deleted = FALSE
                               AND A.EventID = :id
                               AND DATEDIFF(E.Date, CURDATE()) < 6
-                            ORDER BY C.SortKey ASC, RealName ASC");
+                            ORDER BY IsFlawed DESC, C.SortKey ASC, RealName ASC");
   $vehicles->bindValue(':id', $ayaEvent['EventID'], PDO::PARAM_INT);
   $vehicles->execute();
 
   while ($vehicle = $vehicles->fetch(PDO::FETCH_ASSOC))
   {
-    echo '<tr class="alert-' . ($vehicle['IsFlawed'] ? 'danger' : 'success') . '">
+    echo '<tr class="alert-' . ($vehicle['IsFlawed'] ? 'warning' : 'success') . '">
             <td class="text-center">
               <input data-class-id="' . $vehicle['ClassID'] . '" data-user-id="' . $vehicle['phpBBUserID'] . '" data-vehicle-id="'
                 . $vehicle['VehicleID'] . '" type="checkbox" />
@@ -110,6 +104,7 @@ try
             <td class="text-center">
               <span class="glyphicon glyphicon-' . ($vehicle['IsFlawed'] ? 'remove' : 'ok') . '-sign" aria-hidden="true"></span>
             </td>
+            <td class="text-center">' . $vehicle['Date'] . '</td>
           </tr>';
   }
 
@@ -117,7 +112,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 ?>
               </tbody>
@@ -125,7 +120,7 @@ catch (PDOException $exception)
           </div>
         </div>
         <div class="panel-footer">
-          <span class="glyphicon glyphicon-list-alt"></span> Optionen:
+          <span class="glyphicon glyphicon-list-alt"></span> Aktionen:
           <button id="flaws-update" class="btn btn-aya-default" type="button"><span class="glyphicon glyphicon-edit"></span> Aktualisieren</button>
         </div>
       </div>

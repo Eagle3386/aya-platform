@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -13,14 +13,7 @@
  */
 
 $(document).ready(function() {
-  var panelActionUpdate = '-update';
-  var panelFlaws = '#flaws';
-
-  enableSelectionByRowClick(panelFlaws);
-
-  $(panelFlaws + panelActionUpdate).click(function() {
-    fragmentLoader('flaw', 'put', panelFlaws, null);
-  });
+  createPanelActions(['flaws'], ['update']);
 
   $("[class$=-details]")
     .on('keypress', function(event) {
@@ -28,6 +21,6 @@ $(document).ready(function() {
         return false;
       }
     }).on('paste', function(event) {
-
+      // TODO: Implement prevention
     });
 });

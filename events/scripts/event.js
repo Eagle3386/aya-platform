@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -14,7 +14,7 @@
 
 $(document).ready(function() {
   $('.progress-bar').each(function(index) {
-    var progressBar = $(this);
+    let progressBar = $(this);
     progressBar.css('width', function() {
       return ($(this).attr('aria-valuenow') + '%');
     });

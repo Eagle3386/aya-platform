@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -13,6 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+function ShowException($exception)
+{
+  return print 'Error: ' . $exception->getMessage() . '<br />';
+}
+
 try
 {
   $db = new PDO('mysql:host=IP.AD.DR.ESS;dbname=DATABASE;charset=utf8',
@@ -24,6 +29,6 @@ try
 }
 catch (PDOException $exception)
 {
-  die('Error: ' . $exception->getMessage() . '<br />');
+  die(ShowException($exception));
 }
 ?>

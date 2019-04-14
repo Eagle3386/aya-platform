@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -13,7 +13,7 @@
  */
 
 function createDirectionsRenderer(map, position) {
-  var directionsRenderer = new google.maps.DirectionsRenderer({
+  let directionsRenderer = new google.maps.DirectionsRenderer({
     draggable: true,
     hideRouteList: true,
     map: map,
@@ -36,7 +36,7 @@ function createDirectionsRenderer(map, position) {
 
 //function createGeoCoder(map, location, marker, bounce) {
 function createGeoCoder(location) {
-  var geoCoder = new google.maps.Geocoder();
+  let geoCoder = new google.maps.Geocoder();
   geoCoder.geocode({
       address: location
     },
@@ -52,7 +52,7 @@ function createGeoCoder(location) {
 }
 
 function createMarker(map, location, label) {
-  var marker = new google.maps.Marker({
+  let marker = new google.maps.Marker({
     map: map,
     position: location
   });
@@ -61,9 +61,9 @@ function createMarker(map, location, label) {
 }
 
 function initializeLocationMap() {
-  var ayaLocation = $('.aya-location').text();
-  var userLocation = $('#aya-user').data('location');
-  var map = new google.maps.Map(document.getElementById('location-map'), {
+  let ayaLocation = $('.aya-location').text();
+  let userLocation = $('#aya-user').data('location');
+  let map = new google.maps.Map(document.getElementById('location-map'), {
     center: new google.maps.LatLng(51, 10.333333), // geo-heart of Germany
     mapTypeControl: true,
     mapTypeId: google.maps.MapTypeId.HYBRID,
@@ -76,7 +76,7 @@ function initializeLocationMap() {
     zoomControl: true
   });
 
-  var trafficLayer = new google.maps.TrafficLayer();
+  let trafficLayer = new google.maps.TrafficLayer();
   trafficLayer.setMap(map);
 
   if ($('#aya-user').data('user-id') > 1 && userLocation.length > 2) {
@@ -85,7 +85,7 @@ function initializeLocationMap() {
     this.setLocation(map, ayaLocation);
   }
 
-  var distanceService = new google.maps.DistanceMatrixService;
+  let distanceService = new google.maps.DistanceMatrixService;
   distanceService.getDistanceMatrix({
     origins: [ userLocation ],
     destinations: [ ayaLocation ],
@@ -97,13 +97,13 @@ function initializeLocationMap() {
     if (status !== google.maps.DistanceMatrixStatus.OK) {
       alert('Distance query for \'' + ayaLocation + '\' / \'' + userLocation + '\' failed: ' + status);
     } else {
-      //var result = response.rows[0].elements[0];
-      //var distance = result.distance.text;
+      //let result = response.rows[0].elements[0];
+      //let distance = result.distance.text;
       //
       //if (shortDistanceResult) {
-      //  var time = (result.duration.value / 3600);
-      //  var hours = Math.floor(time);
-      //  var minutes = Math.ceil((time - hours) * 60);
+      //  let time = (result.duration.value / 3600);
+      //  let hours = Math.floor(time);
+      //  let minutes = Math.ceil((time - hours) * 60);
       //  distance += ' (ca. ' + (hours > 0 ? (hours + ' h, ') : '') + ((hours === 0) && (minutes === 0) ? 1 : minutes) + ' min)';
       //} else {
       //  distance += ', ca. ' + result.duration.text;
@@ -115,7 +115,7 @@ function initializeLocationMap() {
 }
 
 //function loadOnDemand() {
-//  var script = document.createElement('script');
+//  let script = document.createElement('script');
 //  script.src = 'https://maps.googleapis.com/maps/api/js?callback=initializeLocationMap';
 //  document.body.appendChild(script);
 //}
@@ -125,19 +125,19 @@ function parseGeoCodeResult(results, status, map, marker, address, bounce) {
 }
 
 function setDirections(map, ayaLocation, userLocation) {
-  var directionsRenderer = this.createDirectionsRenderer(map, ayaLocation);
+  let directionsRenderer = this.createDirectionsRenderer(map, ayaLocation);
 
   //this.createGeoCoder(map, ayaLocation, directionsRenderer.markers[0], true);
   //this.createGeoCoder(map, userLocation, directionsRenderer.markers[1], false);
 
-  var ayaCoordinates = this.createGeoCoder(ayaLocation);
-  var ayaMarker = this.createMarker(map, ayaCoordinates, 'Z');
-  var userCoordinates = this.createGeoCoder(userLocation);
-  var userMarker = this.createMarker(map, userCoordinates, 'S');
+  let ayaCoordinates = this.createGeoCoder(ayaLocation);
+  let ayaMarker = this.createMarker(map, ayaCoordinates, 'Z');
+  let userCoordinates = this.createGeoCoder(userLocation);
+  let userMarker = this.createMarker(map, userCoordinates, 'S');
   //ayaMarker.setLabel('Z');
   console.log(ayaMarker);
 
-  var directionsService = new google.maps.DirectionsService();
+  let directionsService = new google.maps.DirectionsService();
   directionsService.route({
     origin: userLocation,
     destination: ayaLocation,
@@ -153,7 +153,7 @@ function setDirections(map, ayaLocation, userLocation) {
 }
 
 function setInfoBox(map, marker, markerLocation, address, bounce) {
-  var infoBox = new google.maps.InfoWindow({
+  let infoBox = new google.maps.InfoWindow({
     content: address,
     position: markerLocation
   });
@@ -173,7 +173,7 @@ function setInfoBox(map, marker, markerLocation, address, bounce) {
 }
 
 function setLocation(map, ayaLocation) {
-  var directionsRenderer = this.createDirectionsRenderer(map);
+  let directionsRenderer = this.createDirectionsRenderer(map);
   this.createGeoCoder(map, ayaLocation, directionsRenderer.markers[0], true);
   this.setInfoBox(map, marker, markerLocation, address, bounce);
   map.setCenter(ayaLocation);

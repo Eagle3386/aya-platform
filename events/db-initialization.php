@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -32,7 +32,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $isAdmin = false;
@@ -42,12 +42,10 @@ if ($phpBBUserID > 1)
   try
   {
     $user = $db->prepare('SELECT U.username, P.pf_anschrift, MAX(CASE WHEN (G.group_id = 12 OR G.group_id = 22) THEN true ELSE false END) AS IsAdmin,
-                          MAX(CASE WHEN (G.group_id = 10 OR G.group_id = 22) THEN true ELSE false END) AS IsJuror
+                            MAX(CASE WHEN (G.group_id = 10 OR G.group_id = 22) THEN true ELSE false END) AS IsJuror
                           FROM phpbb_users U
-                          JOIN phpbb_profile_fields_data P
-                            ON U.user_id = P.user_id
-                          JOIN phpbb_user_group G
-                            ON U.user_id = G.user_id
+                          JOIN phpbb_profile_fields_data P ON P.user_id = U.user_id
+                          JOIN phpbb_user_group G ON G.user_id = U.user_id
                           WHERE U.user_id = :id');
     $user->bindValue(':id', $phpBBUserID, PDO::PARAM_INT);
     $user->execute();
@@ -60,7 +58,7 @@ if ($phpBBUserID > 1)
   }
   catch (PDOException $exception)
   {
-    print 'Error: ' . $exception->getMessage() . '<br />';
+    ShowException($exception);
   }
 }
 ?>

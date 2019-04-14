@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -30,10 +30,9 @@ require_once('fragments/navigation.php');
 try
 {
   $events = $db->prepare("SELECT E.EventID, E.Date, E.Name, L.HostUrl,
-                          CONCAT_WS(' ', CONCAT(CONCAT_WS(' ', L.Street, L.StreetNumber), ','), L.ZIP, L.City) AS Address
+                            CONCAT_WS(' ', CONCAT(CONCAT_WS(' ', L.Street, L.StreetNumber), ','), L.ZIP, L.City) AS Address
                           FROM aya_events E
-                          JOIN aya_locations L
-                            ON E.LocationID = L.LocationID
+                          JOIN aya_locations L ON L.LocationID = E.LocationID
                           WHERE E.Deleted = FALSE
                           ORDER BY DATEDIFF(E.Date, CURDATE()) < 0 ASC, E.Date ASC");
   $events->execute();
@@ -83,7 +82,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $events = null;

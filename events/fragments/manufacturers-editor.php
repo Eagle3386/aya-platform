@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -23,7 +23,7 @@ if (!$isAdmin)
 try
 {
   $manufacturer = $db->prepare('SELECT ManufacturerID, Name, Keywords
-                                FROM aya_vehicles_manufacturers
+                                FROM aya_manufacturers
                                 WHERE Deleted = FALSE
                                   AND ManufacturerID = :id');
   $manufacturer->bindValue(':id', (empty($_POST['ManufacturerID']) ? 0 : $_POST['ManufacturerID']), PDO::PARAM_INT);
@@ -33,10 +33,10 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
-echo '<div id="manufacturer-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
+echo '<div id="manufacturers-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

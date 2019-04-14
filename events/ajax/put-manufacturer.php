@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -23,7 +23,7 @@ if (!$isAdmin)
 try
 {
   $check = $db->prepare('SELECT COUNT(*)
-                         FROM aya_vehicles_manufacturers
+                         FROM aya_manufacturers
                          WHERE ManufacturerID != :id
                            AND Name LIKE :name');
   $check->bindValue(':id', $_POST['ManufacturerID'], PDO::PARAM_INT);
@@ -34,7 +34,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 if ($exists < 1)
@@ -43,7 +43,7 @@ if ($exists < 1)
   {
     try
     {
-      $update = $db->prepare('UPDATE aya_vehicles_manufacturers
+      $update = $db->prepare('UPDATE aya_manufacturers
                               SET Name = :name, Keywords = :keywords
                               WHERE ManufacturerID = :id');
       $update->bindValue(':name', $_POST['Name'], PDO::PARAM_STR);
@@ -55,7 +55,7 @@ if ($exists < 1)
     }
     catch (PDOException $exception)
     {
-      print 'Error: ' . $exception->getMessage() . '<br />';
+      ShowException($exception);
     }
   }
   else

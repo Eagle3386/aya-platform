@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -36,7 +36,7 @@ if (!empty($classID) && !empty($eventID) && !empty($vehicleID))
   }
   catch (PDOException $exception)
   {
-    print 'Error: ' . $exception->getMessage() . '<br />';
+    ShowException($exception);
   }
 
   if ($exists < 1)
@@ -45,20 +45,19 @@ if (!empty($classID) && !empty($eventID) && !empty($vehicleID))
     {
       $check = $db->prepare('SELECT COUNT(A.AttendeeID) AS Attendees, E.ClassLimits
                              FROM aya_attendees A
-                             JOIN aya_events E
-                               ON A.EventID = E.EventID
+                             JOIN aya_events E ON E.EventID = A.EventID
                              WHERE A.Deleted = FALSE
-                               AND A.EventID = :eventId
-                               AND A.ClassID = :classId');
-      $check->bindValue(':eventId', $eventID, PDO::PARAM_INT);
+                               AND A.ClassID = :classId
+                               AND A.EventID = :eventId');
       $check->bindValue(':classId', $classID, PDO::PARAM_INT);
+      $check->bindValue(':eventId', $eventID, PDO::PARAM_INT);
       $check->execute();
       $usage = $check->fetch(PDO::FETCH_ASSOC);
       $check = null;
     }
     catch (PDOException $exception)
     {
-      print 'Error: ' . $exception->getMessage() . '<br />';
+      ShowException($exception);
     }
 
     $classLimits = json_decode($usage['ClassLimits'], true);
@@ -80,7 +79,7 @@ if (!empty($classID) && !empty($eventID) && !empty($vehicleID))
       }
       catch (PDOException $exception)
       {
-        print 'Error: ' . $exception->getMessage() . '<br />';
+        ShowException($exception);
       }
     }
     else

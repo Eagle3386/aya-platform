@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -18,17 +18,17 @@ require_once('../db-initialization.php');
 $userID = $_POST['UserID'];
 $vehicleID = $_POST['VehicleID'];
 
-echo '<div id="flaw-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
+echo '<div id="flaws-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button class="close" data-dismiss="modal" type="button" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Mängelverwaltung</h3>
+        <h3 class="modal-title">Einbau-Verwaltung</h3>
       </div>
       <div class="modal-body">
         <form id="flaw-form">
           <fieldset>
-            <legend>Fahrzeugdaten</legend>
+            <legend>Teilnehmerdaten</legend>
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
@@ -37,15 +37,12 @@ echo '<div id="flaw-editor-dialog" class="modal fade" role="dialog" tabindex="-1
 
 try
 {
-  $vehicle = $db->prepare("SELECT CONCAT(P.pf_vor_nachname_, ', ', P.pf_vorname) AS RealName, C.Name AS ClassName, V.VehicleID, V.RegistrationNumber,
-                           V.InstallFlaws, V.Components, CONCAT(M.Name, ' ', V.Model) AS VehicleName
+  $vehicle = $db->prepare("SELECT CONCAT(P.pf_vor_nachname_, ', ', P.pf_vorname) AS RealName, C.Name AS ClassName, V.VehicleID,
+                             CONCAT(M.Name, ' ', V.Model) AS VehicleName, V.RegistrationNumber, V.InstallFlaws, V.LastFlawsUpdate
                            FROM aya_vehicles V
-                           JOIN phpbb_profile_fields_data P
-                             ON V.phpBBUserID = P.user_id
-                           JOIN aya_classes C
-                             ON C.ClassID = :classId
-                           JOIN aya_vehicles_manufacturers M
-                             ON V.ManufacturerID = M.ManufacturerID
+                           JOIN phpbb_profile_fields_data P ON P.user_id = V.phpBBUserID
+                           JOIN aya_classes C ON C.ClassID = :classId
+                           JOIN aya_manufacturers M ON M.ManufacturerID = V.ManufacturerID
                            WHERE V.Deleted = FALSE
                              AND V.phpBBUserID = :userId
                              AND V.VehicleID = :vehicleId");
@@ -57,7 +54,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $vehicle = null;
@@ -100,28 +97,44 @@ echo '
             </div>
           </fieldset>
           <fieldset>
-            <legend>Einbaudaten</legend>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group">
-                  <div class="input-group">
-                    <div class="input-group-addon aya-label aya-label-vehicle">Komponenten<br />inkl. UVP in €</div>
-                    <textarea id="flaw-components" class="form-control aya-monospace" rows="5" readonly="readonly">'
-                      . (empty($ayaVehicle['Components']) ? '' : $ayaVehicle['Components']) .
-                    '</textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <legend>Einbau-Mängel</legend>
             <div class="row">
               <div class="col-md-12">
                 <div class="form-group">
                   <div class="input-group">
                     <div class="input-group-addon aya-label aya-label-vehicle">Mängel</div>
                     <textarea id="flaw-details" class="form-control" placeholder="' . (empty($ayaVehicle['InstallFlaws'])
-                      ? 'loses Kabel unter Hutablage; Isolation vom Power-Cap fehlt' : $ayaVehicle['InstallFlaws']) . '"
+                      ? 'loses Kabel unter Hutablage, fehlende Isolation des Power-Caps' : $ayaVehicle['InstallFlaws']) . '"
                               rows="3" type="text">' . (empty($ayaVehicle['InstallFlaws']) ? '' : $ayaVehicle['InstallFlaws']) .
                     '</textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <!-- TODO: Until <input type="datetime-local" /> is available on all major browsers, we stick with separate date and time inputs. -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <div class="input-group">
+                    <div class="input-group-addon aya-label aya-label-vehicle">Datum</div>
+                    <input id="flaw-date" class="form-control" max="' . date('Y-m-d') . '" min="' . date('Y') . '-01-01"
+                           pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required="required" step="1" type="date"
+                           value="' . (empty($ayaVehicle['LastFlawsUpdate']) ? date('Y-m-d') : date('Y-m-d', strtotime($ayaVehicle['LastFlawsUpdate']))) . '" />
+                    <div class="input-group-addon">
+                      <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <div class="input-group">
+                    <div class="input-group-addon aya-label aya-label-vehicle">Uhrzeit</div>
+                    <input id="flaw-time" class="form-control" max="22:00" min="06:00" pattern="[0-9]{2}:[0-9]{2}" required="required" step="900"
+                           type="time" value="' . (empty($ayaVehicle['LastFlawsUpdate']) ? date('H:i') : date('H:i', strtotime($ayaVehicle['LastFlawsUpdate']))) . '" />
+                    <div class="input-group-addon">
+                      <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                    </div>
                   </div>
                 </div>
               </div>

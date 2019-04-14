@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -19,7 +19,7 @@ require_once('../db-initialization.php');
 try
 {
   $showDeleted = $_POST['ShowDeleted'] === 'true';
-  $query = 'SELECT E.EventID, ' . ($showDeleted ? 'E.Deleted, ' : '') . 'E.Name, E.Date, ';
+  $query = "SELECT E.EventID, " . ($showDeleted ? "E.Deleted, " : "") . "E.Name, DATE_FORMAT(E.Date, '%Y-%m-%d %H:%i') AS Date, ";
   if (!$showDeleted)  // Address is shown on listing page only
   {
     $query .= "CONCAT(CONCAT_WS(' ', L.Street, L.StreetNumber), ', ', CONCAT_WS(' ', L.ZIP, L.City)) AS Address";
@@ -28,7 +28,7 @@ try
   {
     $query .= 'E.LastUpdate, L.City';
   }
-  $query .= ' FROM aya_events E JOIN aya_locations L ON E.LocationID = L.LocationID WHERE ';
+  $query .= ' FROM aya_events E JOIN aya_locations L ON L.LocationID = E.LocationID WHERE ';
   if (!$showDeleted)
   {
     $query .= 'E.Deleted = FALSE';
@@ -45,7 +45,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $db = null;

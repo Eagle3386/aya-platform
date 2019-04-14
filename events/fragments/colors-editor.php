@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -23,7 +23,7 @@ if (!$isAdmin)
 try
 {
   $color = $db->prepare('SELECT ColorID, Name
-                         FROM aya_vehicles_colors
+                         FROM aya_colors
                          WHERE Deleted = FALSE
                            AND ColorID = :id');
   $color->bindValue(':id', (empty($_POST['ColorID']) ? 0 : $_POST['ColorID']), PDO::PARAM_INT);
@@ -33,10 +33,10 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
-echo '<div id="color-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
+echo '<div id="colors-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

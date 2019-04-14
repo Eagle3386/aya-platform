@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -25,7 +25,7 @@ if (!$isAdmin)
 //ini_set('display_errors', TRUE);
 //ini_set('display_startup_errors', TRUE);
 
-$title = 'AYA — Wettbewerbsadministration 4.5';
+$title = 'AYA — Wettbewerbsadministration 4.8';
 require_once('fragments/header.php');
 
 $showDistance = false;
@@ -40,7 +40,7 @@ require_once('fragments/navigation.php');
     <div class="col-md-10">
       <div class="panel panel-aya">
         <div class="panel-heading">
-          <span class="glyphicon glyphicon-calendar"></span> Wettbewerbe <span id="event-year"><?=date('Y');?></span>
+          <span class="glyphicon glyphicon-calendar"></span> Wettbewerbe <span id="events-year"><?=date('Y');?></span>
         </div>
         <div class="panel-body panel-scrollable">
           <div class="table-responsive">
@@ -60,13 +60,13 @@ require_once('fragments/navigation.php');
           </div>
         </div>
         <div class="panel-footer">
-          <span class="glyphicon glyphicon-list-alt"></span> Optionen:
+          <span class="glyphicon glyphicon-list-alt"></span> Aktionen:
           <button id="events-create" class="btn btn-aya" type="button"><span class="glyphicon glyphicon-plus"></span> Hinzufügen</button>
           <button id="events-update" class="btn btn-aya-default" type="button"><span class="glyphicon glyphicon-edit"></span> Aktualisieren</button>
           <button id="events-delete" class="btn btn-aya-default btn-danger" type="button"><span class="glyphicon glyphicon-remove"></span> Löschen</button>
           <button id="events-export" class="btn btn-aya-default btn-success" type="button"><span class="glyphicon glyphicon-export"></span> Exportieren</button>
-          <select id="events-year" class="form-control selectpicker show-menu-arrow show-tick" data-initial-event-year="<?=date('Y');?>"
-                  data-size="10" data-width="auto" required="required" title="Jahr">
+          <select id="events-year-selector" class="form-control selectpicker show-menu-arrow show-tick" data-size="10" data-width="auto"
+                  required="required" title="Jahr">
 <?php
 try
 {
@@ -78,7 +78,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 for ($year = 2017; $year <= $maxEventYear; $year++)
@@ -112,8 +112,8 @@ for ($year = 2017; $year <= $maxEventYear; $year++)
 <?php
 try
 {
-  $locations = $db->prepare("SELECT LocationID, Deleted, Name, CONCAT_WS(' ', CONCAT(CONCAT_WS(' ', Street, StreetNumber), ','), ZIP, City) AS Address,
-                             ST_X(Coordinates) AS Latitude, ST_Y(Coordinates) AS Longitude, HostUrl
+  $locations = $db->prepare("SELECT LocationID, Deleted, Name, CONCAT(CONCAT_WS(' ', Street, StreetNumber), ',') AS Street,
+                             CONCAT_WS(' ', ZIP, City) AS City, ST_X(Coordinates) AS Latitude, ST_Y(Coordinates) AS Longitude, HostUrl
                              FROM aya_locations
                              ORDER BY Deleted ASC, Name ASC");
   $locations->execute();
@@ -123,7 +123,8 @@ try
     echo '<tr>
             <td class="text-center"><input data-location-id="' . $location['LocationID'] . '" type="checkbox" /></td>
             <td class="text-center">' . ($location['Deleted'] ? '<del>' : '') . $location['Name'] . ($location['Deleted'] ? '</del>' : '') . '</td>
-            <td class="text-center">' . ($location['Deleted'] ? '<del>' : '') . $location['Address'] . ($location['Deleted'] ? '</del>' : '') . '</td>
+            <td class="text-center">' . ($location['Deleted'] ? '<del>' : '') . '<span class="text-nowrap">' . $location['Street']
+              . '</span> <span class="text-nowrap">' . $location['City'] . '</span>' . ($location['Deleted'] ? '</del>' : '') . '</td>
             <td class="text-center">'
               . (empty($location['Latitude']) ? '' : '<a href="//www.google.de/maps/search/' . $location['Name'] . '/@' . $location['Latitude']
                 . ',' . $location['Longitude'] . ',10z' . '"><span class="glyphicon glyphicon-map-marker"></span></a>')
@@ -136,7 +137,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 ?>
               </tbody>
@@ -144,7 +145,7 @@ catch (PDOException $exception)
           </div>
         </div>
         <div class="panel-footer">
-          <span class="glyphicon glyphicon-list-alt"></span> Optionen:
+          <span class="glyphicon glyphicon-list-alt"></span> Aktionen:
           <button id="locations-create" class="btn btn-aya" type="button"><span class="glyphicon glyphicon-plus"></span> Hinzufügen</button>
           <button id="locations-update" class="btn btn-aya-default" type="button"><span class="glyphicon glyphicon-edit"></span> Aktualisieren</button>
           <button id="locations-delete" class="btn btn-aya-default btn-danger" type="button"><span class="glyphicon glyphicon-remove"></span> Löschen</button>
@@ -191,7 +192,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 ?>
               </tbody>
@@ -199,7 +200,7 @@ catch (PDOException $exception)
           </div>
         </div>
         <div class="panel-footer">
-          <span class="glyphicon glyphicon-list-alt"></span> Optionen:
+          <span class="glyphicon glyphicon-list-alt"></span> Aktionen:
           <button id="classes-create" class="btn btn-aya" type="button"><span class="glyphicon glyphicon-plus"></span> Hinzufügen</button>
           <button id="classes-update" class="btn btn-aya-default" type="button"><span class="glyphicon glyphicon-edit"></span> Aktualisieren</button>
           <button id="classes-delete" class="btn btn-aya-default btn-danger" type="button"><span class="glyphicon glyphicon-remove"></span> Löschen</button>
@@ -230,7 +231,7 @@ catch (PDOException $exception)
 try
 {
   $manufacturers = $db->prepare('SELECT ManufacturerID, Deleted, Name, Keywords
-                                 FROM aya_vehicles_manufacturers
+                                 FROM aya_manufacturers
                                  ORDER BY Deleted ASC, Name ASC');
   $manufacturers->execute();
 
@@ -247,7 +248,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 ?>
               </tbody>
@@ -255,7 +256,7 @@ catch (PDOException $exception)
           </div>
         </div>
         <div class="panel-footer">
-          <span class="glyphicon glyphicon-list-alt"></span> Optionen:
+          <span class="glyphicon glyphicon-list-alt"></span> Aktionen:
           <button id="manufacturers-create" class="btn btn-aya" type="button"><span class="glyphicon glyphicon-plus"></span> Hinzufügen</button>
           <button id="manufacturers-update" class="btn btn-aya-default" type="button"><span class="glyphicon glyphicon-edit"></span> Aktualisieren</button>
           <button id="manufacturers-delete" class="btn btn-aya-default btn-danger" type="button"><span class="glyphicon glyphicon-remove"></span> Löschen</button>
@@ -281,7 +282,7 @@ catch (PDOException $exception)
 try
 {
   $colors = $db->prepare('SELECT ColorID, Deleted, Name
-                          FROM aya_vehicles_colors
+                          FROM aya_colors
                           ORDER BY Deleted ASC, Name ASC');
   $colors->execute();
 
@@ -297,7 +298,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 ?>
               </tbody>
@@ -305,7 +306,7 @@ catch (PDOException $exception)
           </div>
         </div>
         <div class="panel-footer">
-          <span class="glyphicon glyphicon-list-alt"></span> Optionen:
+          <span class="glyphicon glyphicon-list-alt"></span> Aktionen:
           <button id="colors-create" class="btn btn-aya" type="button"><span class="glyphicon glyphicon-plus"></span> Hinzufügen</button>
           <button id="colors-update" class="btn btn-aya-default" type="button"><span class="glyphicon glyphicon-edit"></span> Aktualisieren</button>
           <button id="colors-delete" class="btn btn-aya-default btn-danger" type="button"><span class="glyphicon glyphicon-remove"></span> Löschen</button>

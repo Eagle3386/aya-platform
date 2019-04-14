@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -15,7 +15,7 @@
 
 require_once('../db-initialization.php');
 
-echo '<div id="vehicle-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
+echo '<div id="vehicles-editor-dialog" class="modal fade" role="dialog" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -35,10 +35,9 @@ echo '<div id="vehicle-editor-dialog" class="modal fade" role="dialog" tabindex=
 try
 {
   $vehicles = $db->prepare("SELECT V.VehicleID, M.ManufacturerID, M.Name, V.Model, V.Color, V.RegistrationNumber, V.Components,
-                            CONCAT(M.Name, ' ', V.Model, ' (', V.RegistrationNumber, ')') AS VehicleName
+                              CONCAT(M.Name, ' ', V.Model, ' (', V.RegistrationNumber, ')') AS VehicleName
                             FROM aya_vehicles V
-                            JOIN aya_vehicles_manufacturers M
-                              ON V.ManufacturerID = M.ManufacturerID
+                            JOIN aya_manufacturers M ON M.ManufacturerID = V.ManufacturerID
                             WHERE V.Deleted = FALSE
                               AND V.phpBBUserID = :id
                             ORDER BY V.RegistrationNumber ASC");
@@ -48,7 +47,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $vehicles = null;
@@ -81,7 +80,7 @@ echo '<select id="vehicle-selector" class="form-control selectpicker show-menu-a
             </div>
           </fieldset>
           <fieldset>
-            <legend id="editorDataPanel">Fahrzeugdaten aktualisieren</legend>
+            <legend id="editor-inputs">Fahrzeugdaten aktualisieren</legend>
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">

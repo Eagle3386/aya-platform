@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -19,7 +19,7 @@ require_once('../db-initialization.php');
 try
 {
   $manufacturers = $db->prepare('SELECT ManufacturerID, Name, Keywords
-                                 FROM aya_vehicles_manufacturers
+                                 FROM aya_manufacturers
                                  WHERE Deleted = FALSE
                                  ORDER BY Name ASC');
   $manufacturers->execute();
@@ -28,7 +28,7 @@ try
 }
 catch (PDOException $exception)
 {
-  print 'Error: ' . $exception->getMessage() . '<br />';
+  ShowException($exception);
 }
 
 $db = null;

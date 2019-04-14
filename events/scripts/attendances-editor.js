@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -25,7 +25,7 @@ var vehicleSelector = $('#vehicle-selector');
 function addAttendance(attendance) {
   $('.list-group[data-class-id=\'' + attendance.ClassId + '\']')
     .fadeOut(200, function() {
-      var attendee = '<li class="list-group-item" data-attendee-id="' + attendance.Id + '">';
+      let attendee = '<li class="list-group-item" data-attendee-id="' + attendance.Id + '">';
       if (attendance.TeamName.length < 1) {
         attendee += attendance.NickName;
       } else {
@@ -51,7 +51,7 @@ function deleteAttendance(attendanceId) {
 }
 
 function finishCallback() {
-  var attendance = {
+  let attendance = {
     ClassId: classSelector.selectpicker('val'),
     Id: attendanceSelector.selectpicker('val'),
     NickName: $('#attendee-name-nick').val(),
@@ -86,8 +86,8 @@ function getAttendance() {
     url: ajaxFolder + 'get-attendance.php'
   }).done(function(response) {
     if (response.result !== false) {
-      vehicleSelector.selectpicker('val', response.VehicleID)[0].dataset.initialVehicle = response.VehicleID;
-      classSelector.selectpicker('val', response.ClassID)[0].dataset.initialClass = response.ClassID;
+      vehicleSelector.selectpicker('val', response.VehicleID).data('initial-vehicle', response.VehicleID);
+      classSelector.selectpicker('val', response.ClassID).data('initial-class', response.ClassID);
 
       if (response.Remark === null) {
         remark.prop('placeholder', remarkPlaceholder).val('');
@@ -110,6 +110,7 @@ function getPayload() {
 
 function loadedCallback() {
   attachEventHandler(".form-control");
+  enableDelete(attendanceSelector);
 
   $.ajax({
     dataType: 'script',
@@ -130,26 +131,29 @@ function loadedCallback() {
     }
   });
 
-  // TODO: Disable delete button upon 0 active attendances (Disable drop-down, if loaded with 0 attendances, too!)
+  if ($('#attendee-phone-number').val().length < 15) {
+    saveButton.prop('disabled', 'disabled');
+    showMessage('unused', 'MISSING_PHONE', finishCallback, false);
+  }
+
   attendanceSelector.selectpicker()
     .on('loaded.bs.select', function(event, clickedIndex, newValue, oldValue) {
-      var that = $(this);
-      that.selectpicker('val', this.dataset.initialAttendance);
+      let that = $(this);
+      that.selectpicker('val', that.data('initial-attendance'));
       getAttendance();
       enableDeleteOnNonDefaults(that);
     }).on('changed.bs.select', function(event, clickedIndex, newValue, oldValue) {
-      var that = $(this);
-      enableDeleteOnNonDefaults(that);
       clearInputs();
-
+      let that = $(this);
+      that.data('initial-attendance', event.target.value);
+      enableDeleteOnNonDefaults(that);
+      enableSaveOnModified(event.target.value, that.data('initial-attendance'));
       if (that.selectpicker('val') == 0) {
         setEditorMode(createLabel, updateLabel);
       } else {
         getAttendance();
         setEditorMode(updateLabel, createLabel);
       }
-
-      enableSaveOnModified(event.target.value, this.dataset.initialAttendance);
     }).on('refreshed.bs.select', function(event, clickedIndex, newValue, oldValue) {
       enableDeleteOnNonDefaults($(this));
     });
@@ -166,13 +170,13 @@ function loadedCallback() {
           url: ajaxFolder + 'get-components.php'
         }).done(function(response) {
           if (response.result === false) {
-            showMessage(displayName, null, 'MISSING_COMPONENTS', null);
+            showMessage('unused', 'MISSING_COMPONENTS', null, false);
           }
         });
       } else {
         resultPanel.slideUp();
       }
-      enableSaveOnModified(event.target.value, (vehicleSelector[0].value != vehicleSelector[0].dataset.initialVehicle ? -1 : this.dataset.initialClass));
+      enableSaveOnModified(event.target.value, (vehicleSelector.selectpicker('val') != vehicleSelector.data('initial-vehicle') ? -1 : this.dataset.initialClass));
     });
 
   vehicleSelector.selectpicker()
@@ -181,11 +185,6 @@ function loadedCallback() {
       resultPanel.slideUp();
       enableSaveOnModified(event.target.value, this.dataset.initialVehicle);
     });
-
-  if ($('#attendee-phone-number').val().length < 15) {
-    saveButton.prop('disabled', 'disabled');
-    showMessage(displayName, null, 'MISSING_PHONE', null);
-  }
 }
 
 function responseCallback(response) {
@@ -212,50 +211,3 @@ function responseCallback(response) {
       return defaultResponses.Unknown;
   }
 }
-
-function setEditorMode(newLabel, oldLabel) {
-  mode = newLabel === createLabel ? 'post' : 'put';
-  inputsPanel.text(inputsPanel.text().replace(oldLabel.toLowerCase(), newLabel.toLowerCase()));
-}
-
-/*
-var deleteButton = $(delete_);
-  deleteButton.click(function() {
-    deleteButton.prop('disabled', 'disabled');
-
-    var attendances = [];
-    $('[id^=attendeeID-]').each(function() {
-      if (this.checked) {
-        attendances.push(this.id.slice(11));
-      }
-    });
-    $.ajax({
-      cache: false,
-      data: {
-        Attendances: attendances
-      },
-      method: 'POST',
-      url: ajaxFolder + 'delete-attendances.php'
-    }).done(function(response) {
-      if (response > 0) {
-        showMessage(response + ' Teilnahme' + (response > 1 ? 'n' : '') + ' erfolgreich gelöscht.', true);
-        hideModal();
-      } else {
-        var errorReason = 'Bitte Angaben prüfen';
-        var isDisabled = 'disabled';
-        switch (response) {
-          case 'WRONG_COUNT':
-            errorReason = 'Nicht alle Teilnahmen löschbar';
-            break;
-
-          default:
-            isDisabled = false;
-            break;
-        }
-        showMessage('Fehler bei der Löschung. ' + errorReason + '!', false);
-
-        deleteButton.prop('disabled', isDisabled);
-      }
-    });
-  });
-*/

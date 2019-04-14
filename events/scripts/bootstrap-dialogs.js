@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -12,35 +12,36 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-var ajaxFolder = 'ajax/';
-var fragmentsFolder = 'fragments/';
-var scriptsFolder = 'scripts/';
+let ajaxFolder = 'ajax/';
+let scriptsFolder = 'scripts/';
 
-var delete_ = '#delete';
-var editor = '-editor';
-var inputs_ = '-inputs'; // "input" is used by bootstrap-select library
-var fragmentTarget = '#fragment-modal';
-var mode = ''; // TODO: Remove this, but in conjunction with updated vehicle-editor.js (depends on modifying put/post for AJAX save call)
-var result = '#result';
-var save = '#save';
+let delete_ = '#delete';
+let editor = '-editor';
+let inputs_ = '-inputs'; // "input" is used by bootstrap-select library
+let fragmentTarget = '#fragment-modal';
+let mode = '';
+let result = '#result';
+let save = '#save';
 
-var createLabel = 'Hinzufügen';
-var updateLabel = 'Aktualisieren';
+let createLabel = 'Hinzufügen';
+let updateLabel = 'Aktualisieren';
 
-var defaultResponses = {
+let defaultResponses = {
   AlreadyDeleted: 'bereits gelöscht',
   AlreadyExists: 'existiert bereits',
+  AlreadyUsed: 'bereits verwendet',
+  CountMismatch: 'abweichende Anzahl',
   MissingData: 'fehlende Angaben',
   NonExistent: 'existiert nicht',
   Unchanged: 'keine Änderung',
-  Unknown: 'Unbekannter Fehler'
+  Unknown: 'unbekannter Fehler'
 };
 
 function attachEventHandler(selector) {
   $(selector).each(function() {
     $(this).on('input', function(event) {
-      var initialValue = '';
-      if (event.target.type === "date" || event.target.type === "textarea" || event.target.type === "time") {
+      let initialValue = '';
+      if (event.target.type === 'date' || event.target.type === 'textarea' || event.target.type === 'time') {
         initialValue = event.target.defaultValue;
       } else if (event.target.value !== '') {
         initialValue = event.target.placeholder;
@@ -50,18 +51,92 @@ function attachEventHandler(selector) {
   });
 }
 
+function createMessage(mode, isSuccess, isUnchanged, response) {
+  let message = '<span class="glyphicon glyphicon-';
+  let prefix = '';
+  if (isSuccess) {
+    message += 'ok';
+  } else if (isUnchanged) {
+    message += 'info';
+    prefix = 'Hinweis';
+  } else {
+    message += 'exclamation';
+    prefix = 'Fehler';
+  }
+  // NOTE: displayName is defined in each *-editor.js
+  message += '-sign" aria-hidden="true"></span> ' + (isSuccess ? '' : prefix + ': ') + displayName + ' ' + (isSuccess ? 'erfolgreich' : 'nicht') + ' ';
+  switch (mode) {
+    case 'delete':
+      message += 'gelöscht';
+      break;
+
+    case 'post':
+      message += 'angelegt';
+      break;
+
+    case 'put':
+      message += 'aktualisiert';
+      break;
+
+    default:
+      message += 'möglich';
+      break;
+  }
+  message += (isSuccess ? '' : getResponseDetail(response)) + '.' + (isSuccess ? '' : ' Bitte korrigieren!');
+
+  return message;
+}
+
+function enableCreateOnDefault(selector, nonDefaultCallback) {
+  if (selector.selectpicker('val') == 0) {
+    setEditorMode(createLabel, updateLabel);
+  } else {
+    if (typeof (nonDefaultCallback) !== 'undefined' && $.isFunction(nonDefaultCallback)) {
+      nonDefaultCallback();
+    }
+    setEditorMode(updateLabel, createLabel);
+  }
+}
+
+function enableDelete(selector) {
+  let deleteButton = $(delete_);
+  deleteButton.click(function() {
+    deleteButton.prop('disabled', 'disabled');
+
+    $.ajax({
+      cache: false,
+      data: {
+        'Entities': JSON.stringify([selector.selectpicker('val')]),
+        'Type': selector.attr('id').split('-', 1)[0] + 's'
+      },
+      method: 'POST',
+      url: ajaxFolder + 'delete-entities.php'
+    }).done(function(response) {
+      showMessage('delete', response, null, false);
+      if (response > 0) {
+        let currentSelection = selector.children('option').filter(':selected');
+        selector.selectpicker('val', currentSelection.siblings('[value != ""]').first().val());
+        currentSelection.remove();
+        selector.selectpicker('refresh');
+        selector.trigger('changed.bs.select');
+        deleteButton.prop('disabled', false);
+      }
+    });
+  });
+}
+
 function enableDeleteOnNonDefaults(selector) {
-  // val == 0 -> 'Please select' option
-  // original: $('#selector ').siblings()
-  $(delete_).prop('disabled', ((selector.selectpicker('val') == 0) || (selector.children('option:selected').siblings().length < 3) ? 'disabled' : false));
+  $(delete_).prop(
+    'disabled',
+    ((selector.selectpicker('val') == 0) || (selector.children('option').filter(':selected').siblings().length < 3) ? 'disabled' : false));
 }
 
 function enableSaveOnModified(currentValue, initialValue) {
   $(save).prop('disabled', (currentValue !== initialValue ? false : 'disabled')).text(mode === 'post' ? createLabel : updateLabel);
 }
 
-function enableSelectionByRowClick(panelId) {
-  $(panelId + ' > tbody > tr').click(function(event) {
+function enableSelectionByRowClick(panel) {
+  $('#' + panel + ' > tbody > tr').click(function(event) {
     if (event.target.type !== 'checkbox') {
       $(this).find('td > input:checkbox').prop('checked', function(index, value) {
         return !value;
@@ -71,10 +146,10 @@ function enableSelectionByRowClick(panelId) {
 }
 
 function fragmentLoader(fragment, ajaxMode, source, finishCallback) {
-  $(fragmentTarget).load(fragmentsFolder + fragment + editor + '.php',
+  $(fragmentTarget).load('fragments/' + fragment + editor + '.php',
     getRequestData(fragment, source),
     function() {
-      var saveButton = $(save);
+      let saveButton = $(save);
       mode = ajaxMode;
       if (mode === 'put') {
         saveButton.text(updateLabel);
@@ -95,10 +170,9 @@ function fragmentLoader(fragment, ajaxMode, source, finishCallback) {
           cache: false,
           data: getPayload(),
           method: 'POST',
-          url: ajaxFolder + mode + '-' + fragment + '.php'
+          url: getRequestUrl(mode, fragment)
         }).done(function(response) {
-          // TODO: Update source parameter (contains panel) with submitted data
-          showMessage(displayName, mode, response, finishCallback); // displayName is defined in each *-editor.js
+          showMessage(mode, response, finishCallback);
           saveButton.prop('disabled', (response > 0));
         });
       });
@@ -109,141 +183,148 @@ function fragmentLoader(fragment, ajaxMode, source, finishCallback) {
 
 function getRequestData(fragment, source) {
   switch (fragment) {
-    case 'attendance':
+    case 'attendances':
       return {
-        [ 'EventID' ]: source
+        'EventID': source
       };
 
-    case 'flaw':
-      let flaw = $(source + ' input:checked').first();
+    case 'flaws':
+      let item = $('#' + source + ' input:checked').first();
       return {
-        [ 'ClassID' ]: flaw.data('class-id'),
-        [ 'UserID' ]: flaw.data('user-id'),
-        [ 'VehicleID' ]: flaw.data('vehicle-id')
+        'ClassID': item.data('class-id'),
+        'UserID': item.data('user-id'),
+        'VehicleID': item.data('vehicle-id')
+      };
+
+    case 'deletions':
+      return {
+        'Entities': JSON.stringify(source.entities),
+        'Type': source.type
       };
 
     default:
-      return {
-        [ fragment.charAt(0).toUpperCase() + fragment.slice(1) + 'ID' ]: $(source + ' input:checked').first().data(fragment + '-id')
+      fragment = fragment.slice(0, (fragment.endsWith('es') ? -2 : -1));
+      return { // ECMA6 computed property below (unsupported in IE11, but nobody cares for IE anymore)
+        [ fragment.charAt(0).toUpperCase() + fragment.slice(1) + 'ID' ]: $('#' + source + ' input:checked').first().data(fragment + '-id')
       };
   }
 }
 
-function hideModal(callback) {
+function getRequestUrl(mode, fragment) {
+  let url = ajaxFolder + mode + '-';
+  switch(fragment) {
+    case 'classes':
+      url += fragment.slice(0, -2);
+      break;
+
+    case 'deletions':
+      url += 'entities';
+      break;
+
+    default:
+      url += fragment.slice(0, -1);
+      break;
+  }
+  url += '.php';
+
+  return url;
+}
+
+function getResponseDetail(response) {
+  let detail = ' (';
+  if (typeof(responseCallback) !== 'undefined' && $.isFunction(responseCallback)) {
+    detail += responseCallback(response);
+  } else {
+    switch (response) {
+      case '0':
+        detail += defaultResponses.Unchanged;
+        break;
+
+      case 'ALREADY_DELETED':
+        detail += defaultResponses.AlreadyDeleted;
+        break;
+
+      case 'ALREADY_EXISTS':
+        detail += defaultResponses.AlreadyExists;
+        break;
+
+      case 'ALREADY_USED':
+        detail += defaultResponses.AlreadyUsed;
+        break;
+
+      case 'COUNT_MISMATCH':
+        detail += defaultResponses.CountMismatch;
+        break;
+
+      case 'MISSING_DATA':
+        detail += defaultResponses.MissingData;
+        break;
+
+      case 'NON_EXISTENT':
+        detail += defaultResponses.NonExistent;
+        break;
+
+      default:
+        detail += defaultResponses.Unknown;
+        break;
+    }
+  }
+  detail += ')';
+
+  return detail;
+}
+
+function hideModal(finishCallback) {
   setTimeout(function() {
     $(fragmentTarget + ' > div.modal')
       .modal('hide')
       .on('hidden.bs.modal', function(event) {
-        if (callback && typeof(callback) === 'function') {
-          callback();
+        if (finishCallback && typeof (finishCallback) === 'function') {
+          finishCallback();
         }
       });
   }, 2000);
 }
 
-function showMessage(displayName, mode, response, finishCallback) {
-  var resultPanel = $(result);
-  var isSuccess = response > -1;
-  var isUnchanged = response == 0;
+function setEditorMode(newLabel, oldLabel) {
+  mode = newLabel === createLabel ? 'post' : 'put';
+  inputsPanel.text(inputsPanel.text().replace(oldLabel.toLowerCase(), newLabel.toLowerCase()));
+}
+
+function showMessage(mode, response, finishCallback, autoClose = true) {
+  let resultPanel = $(result);
+  let isSuccess = response > 0;
+  let isUnchanged = response == 0;
 
   resultPanel.attr('class', 'alert aya-alert-ajax alert-' + (isUnchanged ? 'info' : (isSuccess ? 'success' : 'danger')));
-  var icon = '<span class="glyphicon glyphicon-';
-  var info = '-sign" aria-hidden="true"></span> ';
-  if (isSuccess) {
-    icon += 'ok';
-  } else if (isUnchanged) {
-    icon += 'info';
-    info += 'Hinweis: ';
-  } else {
-    icon += 'exclamation';
-    info += 'Fehler: ';
-  }
-
-  var message = icon + info + displayName + ' ' + (isSuccess && !isUnchanged ? 'erfolgreich' : 'nicht') + ' ';
-  switch (mode) {
-    case 'delete':
-      message += 'gelöscht';
-      break;
-
-    case 'post':
-      message += 'angelegt';
-      break;
-
-    case 'put':
-      message += 'aktualisiert';
-      break;
-
-    default:
-      message += 'möglich';
-      break;
-  }
-
-  if (!isSuccess || isUnchanged)
-  {
-    message += ' (';
-
-    if (typeof(responseCallback) !== 'undefined' && $.isFunction(responseCallback)) {
-      message += responseCallback(response);
-    } else {
-      switch (response) {
-        case '0':
-          message += defaultResponses.Unchanged;
-          break;
-
-        case 'ALREADY_DELETED':
-          message += defaultResponses.AlreadyDeleted;
-          break;
-
-        case 'ALREADY_EXISTS':
-          message += defaultResponses.AlreadyExists;
-          break;
-
-        case 'MISSING_DATA':
-          message += defaultResponses.MissingData;
-          break;
-
-        case 'NON_EXISTENT':
-          message += defaultResponses.NonExistent;
-          break;
-
-        default:
-          message += defaultResponses.Unknown;
-          break;
-      }
-    }
-
-    message += ')';
-  }
-
-  resultPanel.html(message + '.' + (isSuccess && !isUnchanged ? '' : ' Bitte korrigieren!'));
+  resultPanel.html(createMessage(mode, isSuccess, isUnchanged, response));
   resultPanel.slideDown();
 
-  if (isSuccess && !isUnchanged) {
+  if (autoClose && isSuccess) {
     hideModal(finishCallback);
   }
 }
 
 $(document).ready(function() {
-  var attendance = 'attendance';
+  let attendance = 'attendances';
 
   $('.' + attendance).each(function() {
-    var that = $(this);
+    let that = $(this);
     that.click(function() {
       that.prop('disabled', 'disabled');
-      fragmentLoader('attendance', 'post', that.data('event-id'), null);
+      fragmentLoader('attendances', 'post', that.data('event-id'), null);
       that.prop('disabled', false);
     });
   });
 
   $('#' + attendance + editor).click(function() {
-    fragmentLoader('attendance', 'put', null, null);
+    fragmentLoader('attendances', 'put', null, null);
   });
 
-  $('#vehicle' + editor).click(function() {
-    fragmentLoader('vehicle', 'put', null, null);
+  $('#vehicles' + editor).click(function() {
+    fragmentLoader('vehicles', 'put', null, null);
   });
 
-  // TODO: Refactor this!
   $('tbody').each(function() {
     $(this).on('click', 'tr', function(event) {
       if (event.target.type === 'checkbox') {

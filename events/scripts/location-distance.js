@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Martin Arndt, TroubleZone.Net Productions
+ * Copyright Martin Arndt, TroubleZone.Net Productions
  *
  * Licensed under the EUPL, Version 1.2 only (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -14,13 +14,13 @@
 
 // shortDistanceResult must be set inside HTML/PHP file which includes this file
 function initializeDistances() {
-  var userLocation = $('#aya-user').data('location');
+  let userLocation = $('#aya-user').dataset.location;
 
   $('.aya-event').each(function() {
-    var that = $(this);
-    var ayaLocation = $("address", that).text();
+    let that = $(this);
+    let ayaLocation = $("address", that).text();
 
-    var distanceService = new google.maps.DistanceMatrixService;
+    let distanceService = new google.maps.DistanceMatrixService;
     distanceService.getDistanceMatrix({
       origins: [ userLocation ],
       destinations: [ ayaLocation ],
@@ -32,14 +32,14 @@ function initializeDistances() {
       if (status !== google.maps.DistanceMatrixStatus.OK) {
         alert('Distance query for \'' + ayaLocation + '\' / \'' + userLocation + '\' failed: ' + status);
       } else {
-        var result = response.rows[0].elements[0];
-        var distance = result.distance.text;
-        var duration = result.duration.text;
+        let result = response.rows[0].elements[0];
+        let distance = result.distance.text;
+        let duration = result.duration.text;
 
         if (shortDistanceResult) {
-          var time = (result.duration.value / 3600);
-          var hours = Math.floor(time);
-          var minutes = Math.floor((time - hours) * 60);
+          let time = (result.duration.value / 3600);
+          let hours = Math.floor(time);
+          let minutes = Math.floor((time - hours) * 60);
           if ((hours === 0) && (minutes === 0)) {
             minutes = 1;
           }
