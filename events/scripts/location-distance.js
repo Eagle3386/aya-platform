@@ -14,7 +14,7 @@
 
 // shortDistanceResult must be set inside HTML/PHP file which includes this file
 function initializeDistances() {
-  let userLocation = $('#aya-user').dataset.location;
+  let userLocation = $('#aya-user').data('location');
 
   $('.aya-event').each(function() {
     let that = $(this);
