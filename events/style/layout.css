@@ -92,9 +92,12 @@ address {
   background-color: #D5B900;
 }
 
+.nav.navbar-nav > .dropdown > a {
+  margin-top: 8px;
+}
+
 .navbar-brand > img {
-  margin-top: -1px;
-  max-height: 20px;
+  max-height: 22px;
 }
 
 .progress {

@@ -22,7 +22,7 @@ echo '<nav class="navbar navbar-default navbar-fixed-top">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="//www.aya-forum.de/">
+      <a class="navbar-brand navbar-btn" href="//www.aya-forum.de/">
         <img alt="Are You Authentic? e. V." src="/styles/aya_prosilver/theme/images/logo_forum.png" />
       </a>
     </div>
@@ -53,29 +53,39 @@ if ($isAdmin)
 </li>';
 }
 
-echo '<li class="dropdown">
-          <a class="btn btn-aya-default navbar-btn ' . ($phpBBUserID < 2 ? 'disabled' : 'dropdown-toggle" data-toggle="dropdown') . '" href="#" role="button">
-            <span class="glyphicon glyphicon-user"></span> ' . $ayaUsername . ' <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a id="attendances-editor" href="#">
-                <span class="glyphicon glyphicon-calendar"></span> Teilnahmen
-              </a>
-            </li>
-            <li>
-              <a id="vehicles-editor" href="#">
-                <span class="glyphicon glyphicon-bed"></span> Fahrzeuge
-              </a>
-            </li>
-          </ul>
-        </li>
+if ($phpBBUserID > 1)
+{
+  echo '<li class="dropdown">
+<a id="aya-user" class="btn btn-aya-default dropdown-toggle" data-user-id="' . $phpBBUserID . '" data-location="' . $ayaUserLocation . '" data-toggle="dropdown"
+   href="#" role="button">
+  <span class="glyphicon glyphicon-user"></span> ' . $ayaUsername . ' <span class="caret"></span>
+</a>
+<ul class="dropdown-menu">
+  <li>
+    <a id="attendances-editor" href="#">
+      <span class="glyphicon glyphicon-calendar"></span> Teilnahmen
+    </a>
+  </li>
+  <li>
+    <a id="vehicles-editor" href="#">
+      <span class="glyphicon glyphicon-bed"></span> Fahrzeuge
+    </a>
+  </li>
+</ul>';
+}
+else
+{
+  echo '</ul>
+<ul class="nav navbar-nav navbar-right">
+  <li>
+    <a id="aya-user" class="btn btn-aya-default navbar-btn" data-user-id="' . $phpBBUserID . '" data-location="' . $ayaUserLocation . '"
+       href="/ucp.php?mode=login" role="button">
+      <span class="glyphicon glyphicon-off"></span> Anmelden
+    </a>';
+}
+
+echo '</li>
       </ul>
-      <p class="navbar-text navbar-right">
-        <a id="aya-user" data-user-id="' . $phpBBUserID . '" href="/'
-              . ($phpBBUserID < 2 ? 'ucp.php?mode=login">Foren-Anmeldung' : 'memberlist.php?mode=viewprofile&amp;u=' . $phpBBUserID . '"
-            data-location="' . $ayaUserLocation . '">Willkommen, ' . $ayaUsername) . '.</a>
-      </p>
     </div>
   </div>
 </nav>';
