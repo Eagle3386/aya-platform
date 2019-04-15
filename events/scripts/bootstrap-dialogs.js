@@ -306,19 +306,19 @@ function showMessage(mode, response, finishCallback, autoClose = true) {
 }
 
 $(document).ready(function() {
-  let attendance = 'attendances';
+  let attendances = 'attendances';
 
-  $('.' + attendance).each(function() {
+  $('.' + attendances.slice(0, -1)).each(function() {
     let that = $(this);
     that.click(function() {
       that.prop('disabled', 'disabled');
-      fragmentLoader('attendances', 'post', that.data('event-id'), null);
+      fragmentLoader(attendances, 'post', that.data('event-id'), null);
       that.prop('disabled', false);
     });
   });
 
-  $('#' + attendance + editor).click(function() {
-    fragmentLoader('attendances', 'put', null, null);
+  $('#' + attendances + editor).click(function() {
+    fragmentLoader(attendances, 'put', null, null);
   });
 
   $('#vehicles' + editor).click(function() {
