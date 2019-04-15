@@ -13,7 +13,7 @@
  */
 
 var displayName = 'Wettbewerb';
-let locationSelector = $('#location-selector');
+var locationSelector = $('#location-selector');
 
 function getPayload() {
   return {
