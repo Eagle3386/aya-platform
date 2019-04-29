@@ -96,8 +96,9 @@ catch (PDOException $exception)
 }
 
 echo '<select id="location-selector" class="form-control selectpicker show-menu-arrow show-tick" data-initial-location="'
-                . (is_numeric($ayaEvent['LocationID']) ? $ayaEvent['LocationID'] : 0) . '" data-show-subtext="true" data-size="10" data-width="100%"
-              required="required" title="Bitte Austragungsort auswählen!">';
+                . (is_numeric($ayaEvent['LocationID']) ? $ayaEvent['LocationID'] : 0) . '" data-live-search="'
+                . (count($ayaLocations) > 10 ? true : false) . '" data-show-subtext="true" data-size="10" data-width="100%" required="required"
+              title="Bitte Austragungsort auswählen!">';
 
 foreach ($ayaLocations as $location)
 {
