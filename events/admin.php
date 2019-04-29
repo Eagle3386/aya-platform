@@ -21,10 +21,6 @@ if (!$isAdmin)
   die('Only administrators beyond this point! Sorry.');
 }
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', TRUE);
-//ini_set('display_startup_errors', TRUE);
-
 $title = 'AYA — Wettbewerbsadministration 4.8';
 require_once('fragments/header.php');
 
