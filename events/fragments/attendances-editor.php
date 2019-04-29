@@ -101,7 +101,7 @@ echo '<select id="attendance-selector" class="form-control selectpicker show-men
 
 try
 {
-  $attendee = $db->prepare("SELECT U.username AS Nickname, CONCAT(P.pf_vor_nachname_, ', ', P.pf_vorname) AS RealName,
+  $attendee = $db->prepare("SELECT U.username AS UserName, CONCAT(P.pf_vor_nachname_, ', ', P.pf_vorname) AS RealName,
                             P.pf_teamname AS TeamName, P.pf_handynr AS PhoneNumber
                             FROM phpbb_users U
                             JOIN phpbb_profile_fields_data P ON P.user_id = U.user_id
@@ -151,8 +151,8 @@ echo '              </select>
               <div class="col-md-6">
                 <div class="form-group">
                   <div class="input-group">
-                    <div class="input-group-addon aya-label aya-label-attendee">Nickname</div>
-                    <input id="attendee-name-nick" class="form-control" value="' . $ayaAttendee['Nickname'] . '" type="text" readonly="readonly" />
+                    <div class="input-group-addon aya-label aya-label-attendee">Username</div>
+                    <input id="attendee-name-nick" class="form-control" value="' . $ayaAttendee['UserName'] . '" type="text" readonly="readonly" />
                   </div>
                 </div>
               </div>

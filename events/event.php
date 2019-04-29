@@ -172,7 +172,7 @@ try
 
       try
       {
-        $attendees = $db->prepare('SELECT A.AttendanceID, U.username AS Username, P.pf_teamname AS TeamName
+        $attendees = $db->prepare('SELECT A.AttendanceID, U.username AS UserName, P.pf_teamname AS TeamName
                                    FROM aya_attendances A
                                    JOIN phpbb_users U ON U.user_id = A.phpBBUserID
                                    JOIN phpbb_profile_fields_data P ON P.user_id = A.phpBBUserID
@@ -189,12 +189,12 @@ try
           echo '<li class="list-group-item" data-attendee-id="' . $attendee['AttendanceID'] . '">';
           if (empty($attendee['TeamName']))
           {
-            echo $attendee['Username'];
+            echo $attendee['UserName'];
           }
           else
           {
             echo '<div class="row">
-  <div class="col-md-7">' . $attendee['Username'] . '</div>
+  <div class="col-md-7">' . $attendee['UserName'] . '</div>
   <div class="col-md-5">
     <span class="label" title="' . $attendee['TeamName'] . '">' . $attendee['TeamName'] . '</span>
   </div>
