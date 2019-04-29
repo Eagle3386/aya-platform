@@ -22,6 +22,7 @@ let fragmentTarget = '#fragment-modal';
 let mode = '';
 let result = '#result';
 let save = '#save';
+let timeout = 2000;
 
 let createLabel = 'Hinzufügen';
 let updateLabel = 'Aktualisieren';
@@ -64,7 +65,8 @@ function createMessage(mode, isSuccess, isUnchanged, response) {
     prefix = 'Fehler';
   }
   // NOTE: displayName is defined in each *-editor.js
-  message += '-sign" aria-hidden="true"></span> ' + (isSuccess ? '' : prefix + ': ') + displayName + ' ' + (isSuccess ? 'erfolgreich' : 'nicht') + ' ';
+  message += '-sign" aria-hidden="true"></span> ' + (isSuccess ? '' : prefix + ': ')
+    + (displayName === 'Wettbewerb' && mode === 'delete' ? 'Teilnahme/' + displayName : displayName) + ' ' + (isSuccess ? 'erfolgreich' : 'nicht') + ' ';
   switch (mode) {
     case 'delete':
       message += 'gelöscht';
@@ -91,14 +93,14 @@ function enableCreateOnDefault(selector, nonDefaultCallback) {
   if (selector.selectpicker('val') == 0) {
     setEditorMode(createLabel, updateLabel);
   } else {
-    if (typeof (nonDefaultCallback) !== 'undefined' && $.isFunction(nonDefaultCallback)) {
+    if (typeof(nonDefaultCallback) !== 'undefined' && $.isFunction(nonDefaultCallback)) {
       nonDefaultCallback();
     }
     setEditorMode(updateLabel, createLabel);
   }
 }
 
-function enableDelete(selector) {
+function enableDelete(selector, defaultsCount = 3) {
   let deleteButton = $(delete_);
   deleteButton.click(function() {
     deleteButton.prop('disabled', 'disabled');
@@ -106,7 +108,7 @@ function enableDelete(selector) {
     $.ajax({
       cache: false,
       data: {
-        'Entities': JSON.stringify([selector.selectpicker('val')]),
+        'Entities': JSON.stringify([ selector.selectpicker('val') ]),
         'Type': selector.attr('id').split('-', 1)[0] + 's'
       },
       method: 'POST',
@@ -119,16 +121,21 @@ function enableDelete(selector) {
         currentSelection.remove();
         selector.selectpicker('refresh');
         selector.trigger('changed.bs.select');
-        deleteButton.prop('disabled', false);
       }
     });
   });
 }
 
 function enableDeleteOnNonDefaults(selector) {
-  $(delete_).prop(
-    'disabled',
-    ((selector.selectpicker('val') == 0) || (selector.children('option').filter(':selected').siblings().length < 3) ? 'disabled' : false));
+  let value = selector.selectpicker('val');
+  let isDisabled = value === null || selector.children('option[value != ""]').length < 1;
+  $(delete_).prop('disabled', (isDisabled || value < 1 ? 'disabled' : false));
+  if (isDisabled) {
+    selector
+      .selectpicker({ style: 'disabled', title: 'Kein aktiver Eintrag vorhanden!' })
+      .html('') // HACK: cause bootstrap-select won't reflect its new title without a DOM change
+      .selectpicker('refresh');
+  }
 }
 
 function enableSaveOnModified(currentValue, initialValue) {
@@ -212,7 +219,7 @@ function getRequestData(fragment, source) {
 
 function getRequestUrl(mode, fragment) {
   let url = ajaxFolder + mode + '-';
-  switch(fragment) {
+  switch (fragment) {
     case 'classes':
       url += fragment.slice(0, -2);
       break;
@@ -279,11 +286,11 @@ function hideModal(finishCallback) {
     $(fragmentTarget + ' > div.modal')
       .modal('hide')
       .on('hidden.bs.modal', function(event) {
-        if (finishCallback && typeof (finishCallback) === 'function') {
+        if (finishCallback && typeof(finishCallback) === 'function') {
           finishCallback();
         }
       });
-  }, 2000);
+  }, timeout);
 }
 
 function setEditorMode(newLabel, oldLabel) {
@@ -298,11 +305,17 @@ function showMessage(mode, response, finishCallback, autoClose = true) {
 
   resultPanel.attr('class', 'alert aya-alert-ajax alert-' + (isUnchanged ? 'info' : (isSuccess ? 'success' : 'danger')));
   resultPanel.html(createMessage(mode, isSuccess, isUnchanged, response));
-  resultPanel.slideDown();
-
-  if (autoClose && isSuccess) {
-    hideModal(finishCallback);
-  }
+  resultPanel.slideDown({
+    done: function(animation, isFinished) {
+      if (autoClose && isSuccess) {
+        hideModal(finishCallback);
+      } else if (isSuccess) {
+        setTimeout(function() {
+          resultPanel.slideUp();
+        }, timeout);
+      }
+    }
+  });
 }
 
 $(document).ready(function() {

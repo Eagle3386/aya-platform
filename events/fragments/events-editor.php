@@ -190,6 +190,57 @@ foreach ($ayaClasses as $class)
 }
 
 echo '</fieldset>
+          <fieldset>
+            <legend>Teilnahmen</legend>
+            <div class="row">
+              <div class="col-md-9">
+                <div class="form-group">
+                  <div class="input-group">
+                    <div class="input-group-addon aya-label aya-label-attendee">Teilnahme</div>';
+
+try
+{
+  $attendances = $db->prepare('SELECT A.AttendanceID, C.Name AS ClassName, V.RegistrationNumber, U.username AS UserName
+                               FROM aya_attendances A
+                               JOIN aya_classes C ON C.ClassID = A.ClassID
+                               JOIN aya_vehicles V ON V.VehicleID = A.VehicleID
+                               JOIN phpbb_users U ON U.user_id = A.phpBBUserID
+                               WHERE A.Deleted = FALSE
+                                 AND A.EventID = :id
+                               ORDER BY U.username ASC, C.SortKey ASC');
+  $attendances->bindValue(':id', $ayaEvent['EventID'], PDO::PARAM_INT);
+  $attendances->execute();
+  $ayaAttendances = $attendances->fetchAll(PDO::FETCH_ASSOC);
+  $attendances = null;
+}
+catch (PDOException $exception)
+{
+  ShowException($exception);
+}
+
+echo '<select id="attendance-selector" class="form-control selectpicker show-menu-arrow show-tick" data-live-search="'
+                . (count($ayaAttendances) > 10 ? true : false) . '" data-show-subtext="true" data-size="10" data-width="100%" title="'
+                . (empty($ayaAttendances) ? 'Kein aktiver Eintrag vorhanden' : 'Bitte Teilnahme auswählen') . '!">';
+
+foreach ($ayaAttendances as $attendance)
+{
+  echo '<option data-subtext="' . $attendance['ClassName'] . ' (' . $attendance['RegistrationNumber'] . ')" value="' . $attendance['AttendanceID']
+    . '">' . $attendance['UserName'] . '</option>';
+}
+
+echo '              </select>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <div class="input-group">
+                    <button id="delete" class="btn btn-aya" type="button">Löschen</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
         </form>
         <div id="result" class="alert aya-alert-ajax" role="alert"></div>
       </div>
@@ -200,7 +251,4 @@ echo '</fieldset>
     </div>
   </div>
 </div>';
-
-$ayaClassLimits = null;
-$db = null;
 ?>

@@ -12,6 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+var attendanceSelector = $('#attendance-selector');
 var displayName = 'Wettbewerb';
 var locationSelector = $('#location-selector');
 
@@ -35,6 +36,14 @@ function getPayload() {
 
 function loadedCallback() {
   attachEventHandler(".form-control");
+  enableDelete(attendanceSelector, 1);
+
+  attendanceSelector.selectpicker()
+    .on('loaded.bs.select', function(event, clickedIndex, newValue, oldValue) {
+      enableDeleteOnNonDefaults($(this));
+    }).on('changed.bs.select', function(event, clickedIndex, newValue, oldValue) {
+      enableDeleteOnNonDefaults($(this));
+    });
 
   locationSelector.selectpicker()
     .on('changed.bs.select', function(event, clickedIndex, newValue, oldValue) {

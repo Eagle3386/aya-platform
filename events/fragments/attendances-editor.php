@@ -73,28 +73,22 @@ catch (PDOException $exception)
 
 $attendancesList = '';
 $initialAttendance = 0;
-if (empty($ayaAttendances))
+$isFirstMatch = false;
+foreach ($ayaAttendances as $attendance)
 {
-  $attendancesList = '<option id="no-attendances">Keine aktiven Teilnahmen vorhanden</option>';
-}
-else
-{
-  $isFirstMatch = false;
-  foreach ($ayaAttendances as $attendance)
+  if (!$isFirstMatch && (empty($ayaEvent['EventID']) || $attendance['EventID'] === $ayaEvent['EventID']))
   {
-    if (!$isFirstMatch && ($attendance['EventID'] === $ayaEvent['EventID'] || empty($ayaEvent['EventID'])))
-    {
-      $initialAttendance = $attendance['AttendanceID'];
-      $isFirstMatch = true;
-    }
-    $attendancesList .= '<option data-event-id="' . $attendance['EventID'] . '" data-subtext="' . $attendance['ClassName'] . ' ('
-      . $attendance['RegistrationNumber'] . ')" value="' . $attendance['AttendanceID'] . '">' . date($selectorDateFormat, strtotime($attendance['Date']))
-      . $attendance['EventName'] . '</option>';
+    $initialAttendance = $attendance['AttendanceID'];
+    $isFirstMatch = true;
   }
+  $attendancesList .= '<option data-event-id="' . $attendance['EventID'] . '" data-subtext="' . $attendance['ClassName'] . ' ('
+    . $attendance['RegistrationNumber'] . ')" value="' . $attendance['AttendanceID'] . '">' . date($selectorDateFormat, strtotime($attendance['Date']))
+    . $attendance['EventName'] . '</option>';
 }
 
 echo '<select id="attendance-selector" class="form-control selectpicker show-menu-arrow show-tick" data-initial-attendance="' . $initialAttendance . '"
-              data-size="10" data-width="100%" title="Bitte Teilnahme auswählen!">'
+              data-size="10" data-width="100%" title="' . (empty($ayaAttendances) ? 'Kein aktiver Eintrag vorhanden' : 'Bitte Teilnahme auswählen')
+                . '!">'
   . $attendancesList
   . (empty($ayaEvent['EventID']) ? '' : '<option id="post-attendance" data-event-id="' . $ayaEvent['EventID'] . '" data-subtext="' . $ayaEvent['Name']
     . '" value="0">' . date($selectorDateFormat, strtotime($ayaEvent['Date'])) . 'Neue Teilnahme hinzufügen</option>');

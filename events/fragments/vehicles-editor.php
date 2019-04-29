@@ -64,7 +64,7 @@ $vehicle = reset($ayaVehicles);
 
 echo '<select id="vehicle-selector" class="form-control selectpicker show-menu-arrow show-tick"
               data-initial-vehicle="' . (empty($vehicle['VehicleID']) ? '0' : $vehicle['VehicleID']) . '" data-show-subtext="true" data-size="10"
-              data-width="100%" title="Bitte Fahrzeug auswählen!">
+              data-width="100%" title="' . (empty($ayaVehicles) ? 'Kein aktiver Eintrag vorhanden' : 'Bitte Fahrzeug auswählen') . '!">
                       ' . $vehiclesList . '
                       <option id="post-vehicle" value="0">Neues Fahrzeug hinzufügen</option>
                     </select>
