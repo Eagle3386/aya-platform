@@ -50,7 +50,6 @@ function createFragmentLoader(panel, action) {
                   responseType: 'blob'
                 },
                 success: function(blob) {
-                  console.log(JSON.stringify(blob.size));
                   let link = document.createElement('a');
                   link.href = window.URL.createObjectURL(blob);
                   link.download = "Teilnehmerliste - " + new Date() + " - " + TITLE + ".xlsx";

@@ -154,8 +154,6 @@ function loadedCallback() {
         getAttendance();
         setEditorMode(updateLabel, createLabel);
       }
-    }).on('refreshed.bs.select', function(event, clickedIndex, newValue, oldValue) {
-      enableDeleteOnNonDefaults($(this));
     });
 
   classSelector.selectpicker()

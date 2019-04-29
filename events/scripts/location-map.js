@@ -135,7 +135,7 @@ function setDirections(map, ayaLocation, userLocation) {
   let userCoordinates = this.createGeoCoder(userLocation);
   let userMarker = this.createMarker(map, userCoordinates, 'S');
   //ayaMarker.setLabel('Z');
-  console.log(ayaMarker);
+  //console.log(ayaMarker);
 
   let directionsService = new google.maps.DirectionsService();
   directionsService.route({
