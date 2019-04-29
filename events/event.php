@@ -33,7 +33,7 @@ catch (PDOException $exception)
   ShowException($exception);
 }
 
-$title = $ayaEvent['Name'] . ' — AYA-Teilnahme 4.1';
+$title = $ayaEvent['Name'] . ' — AYA-Teilnahme 4.2';
 require_once('fragments/header.php');
 
 $isEventPage = true;

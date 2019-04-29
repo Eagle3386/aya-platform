@@ -15,7 +15,7 @@
 
 require_once('db-initialization.php');
 
-$title = 'AYA — Wettbewerbsübersicht 3.15';
+$title = 'AYA — Wettbewerbsübersicht 3.18';
 require_once('fragments/header.php');
 
 $showDistance = true;
@@ -78,13 +78,13 @@ try
       </div>
     </div>';
   }
+  $events = null;
 }
 catch (PDOException $exception)
 {
   ShowException($exception);
 }
 
-$events = null;
 $db = null;
 ?>
   </div>
