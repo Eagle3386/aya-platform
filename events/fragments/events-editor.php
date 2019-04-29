@@ -79,6 +79,7 @@ echo '<div id="events-editor-dialog" class="modal fade" role="dialog" tabindex="
                 <div class="form-group">
                   <div class="input-group">
                     <div class="input-group-addon aya-label aya-label-event">Austragungsort</div>';
+
 try
 {
   $locations = $db->prepare("SELECT LocationID, Name, CONCAT(Street, ' ', StreetNumber, ', ', Zip, ' ', City) AS Address
@@ -94,19 +95,17 @@ catch (PDOException $exception)
   ShowException($exception);
 }
 
-$locationsList = '';
+echo '<select id="location-selector" class="form-control selectpicker show-menu-arrow show-tick" data-initial-location="'
+                . (is_numeric($ayaEvent['LocationID']) ? $ayaEvent['LocationID'] : 0) . '" data-show-subtext="true" data-size="10" data-width="100%"
+              required="required" title="Bitte Austragungsort auswählen!">';
+
 foreach ($ayaLocations as $location)
 {
-  $locationsList .= '<option data-subtext="' . $location['Address'] . '" value="' . $location['LocationID'] . '"'
+  echo '<option data-subtext="' . $location['Address'] . '" value="' . $location['LocationID'] . '"'
     . ($location['LocationID'] == $ayaEvent['LocationID'] ? ' selected="selected"' : '') . '>' . $location['Name'] . '</option>';
 }
-$location = reset($ayaLocations);
 
-echo '<select id="location-selector" class="form-control selectpicker show-menu-arrow show-tick" data-initial-location="'
-        . (is_numeric($ayaEvent['LocationID']) ? $ayaEvent['LocationID'] : 0) . '" data-size="10" data-width="false" required="required"
-              title="Bitte Austragungsort auswählen">
-                      ' . $locationsList . '
-                    </select>
+echo '</select>
                   </div>
                 </div>
               </div>

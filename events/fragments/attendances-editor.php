@@ -23,7 +23,7 @@ try
                          FROM aya_events
                          WHERE Deleted = FALSE
                            AND EventID = :id');
-  $event->bindValue(':id', $_POST['EventID'], PDO::PARAM_INT);
+  $event->bindValue(':id', (empty($_POST['EventID']) ? 0 : $_POST['EventID']), PDO::PARAM_INT);
   $event->execute();
   $ayaEvent = $event->fetch(PDO::FETCH_ASSOC);
   $event = null;
@@ -185,7 +185,7 @@ echo '              </select>
 
 try
 {
-  $vehicles = $db->prepare("SELECT V.VehicleID, CONCAT(M.Name, ' ', V.Model, ' (', V.RegistrationNumber, ')') AS VehicleName
+  $vehicles = $db->prepare("SELECT V.VehicleID, CONCAT(M.Name, ' ', V.Model) AS VehicleName, V.RegistrationNumber
                             FROM aya_vehicles V
                             JOIN aya_manufacturers M ON M.ManufacturerID = V.ManufacturerID
                             WHERE V.Deleted = FALSE
@@ -198,7 +198,8 @@ try
 
   foreach ($ayaVehicles as $vehicle)
   {
-    echo '<option value="' . $vehicle["VehicleID"] . '">' . $vehicle["VehicleName"] . '</option>';
+    echo '<option data-subtext="' . $vehicle['RegistrationNumber'] . '" value="' . $vehicle["VehicleID"] . '">' . $vehicle['VehicleName']
+      . '</option>';
   }
 }
 catch (PDOException $exception)
@@ -235,16 +236,13 @@ try
       {
         echo '</optgroup>';
       }
-
       echo '<optgroup label="' . $currentGroup . '">';
     }
-
     echo '<option data-price-limited="' . (empty($class['PriceLimited']) ? 'false' : 'true') . '" value="' . $class['ClassID'] . '">' . $class['Name']
       . '</option>';
-
     $previousGroup = $currentGroup;
   }
-
+  $classes = null;
   echo '</optgroup>';
 }
 catch (PDOException $exception)
@@ -252,7 +250,6 @@ catch (PDOException $exception)
   ShowException($exception);
 }
 
-$classes = null;
 $db = null;
 
 echo '              </select>

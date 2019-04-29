@@ -35,7 +35,7 @@ echo '<div id="vehicles-editor-dialog" class="modal fade" role="dialog" tabindex
 try
 {
   $vehicles = $db->prepare("SELECT V.VehicleID, M.ManufacturerID, M.Name, V.Model, V.Color, V.RegistrationNumber, V.Components,
-                              CONCAT(M.Name, ' ', V.Model, ' (', V.RegistrationNumber, ')') AS VehicleName
+                              CONCAT(M.Name, ' ', V.Model) AS VehicleName
                             FROM aya_vehicles V
                             JOIN aya_manufacturers M ON M.ManufacturerID = V.ManufacturerID
                             WHERE V.Deleted = FALSE
@@ -56,14 +56,15 @@ $db = null;
 $vehiclesList = '';
 foreach ($ayaVehicles as $vehicle)
 {
-  $vehiclesList .= '<option data-manufacturer-id="' . (empty($vehicle['ManufacturerID']) ? '0' : $vehicle['ManufacturerID']) . '"
-                            value="' . (empty($vehicle['VehicleID']) ? '0' : $vehicle['VehicleID']) . '">' . $vehicle['VehicleName'] . '</option>';
+  $vehiclesList .= '<option data-manufacturer-id="' . (empty($vehicle['ManufacturerID']) ? '0' : $vehicle['ManufacturerID']) . '" data-subtext="'
+                     . $vehicle['RegistrationNumber'] . '" value="' . (empty($vehicle['VehicleID']) ? '0' : $vehicle['VehicleID']) . '">'
+                     . $vehicle['VehicleName'] . '</option>';
 }
 $vehicle = reset($ayaVehicles);
 
 echo '<select id="vehicle-selector" class="form-control selectpicker show-menu-arrow show-tick"
-              data-initial-vehicle="' . (empty($vehicle['VehicleID']) ? '0' : $vehicle['VehicleID']) . '" data-size="10" data-width="100%"
-              title="Bitte Fahrzeug auswählen!">
+              data-initial-vehicle="' . (empty($vehicle['VehicleID']) ? '0' : $vehicle['VehicleID']) . '" data-show-subtext="true" data-size="10"
+              data-width="100%" title="Bitte Fahrzeug auswählen!">
                       ' . $vehiclesList . '
                       <option id="post-vehicle" value="0">Neues Fahrzeug hinzufügen</option>
                     </select>
