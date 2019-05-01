@@ -47,7 +47,7 @@ if ($exists < 1)
                               INTO aya_classes (Name, PriceLimited, SortKey)
                               VALUES (:name, :limited, :key)');
       $insert->bindValue(':name', $_POST['Name'], PDO::PARAM_STR);
-      $update->bindValue(':limited', ($_POST['PriceLimited'] === 'true' ? 1 : 0), PDO::PARAM_INT); // PDO fails if using real BOOL -.-
+      $insert->bindValue(':limited', ($_POST['PriceLimited'] === 'true' ? 1 : 0), PDO::PARAM_INT); // PDO fails if using real BOOL -.-
       $insert->bindValue(':key', $_POST['SortKey'], PDO::PARAM_INT);
       $insert->execute();
       echo $insert->rowCount();
