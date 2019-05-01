@@ -54,10 +54,10 @@ if (!empty($city) && !empty($coordinates[1]) && !empty($coordinates[2]) && !empt
     {
       $insert = $db->prepare('INSERT
                               INTO aya_locations (Name, Street, StreetNumber, Zip, City, Coordinates, HostUrl, Description)
-                              VALUES (:name, :street, :number, :zip, :city, POINT(:latitude, :longitude), :url, :description)');
+                              VALUES (:name, :street, :streetNumber, :zip, :city, POINT(:latitude, :longitude), :url, :description)');
       $insert->bindValue(':name', $name, PDO::PARAM_STR);
       $insert->bindValue(':street', $street, PDO::PARAM_STR);
-      $insert->bindValue(':number', (empty($_POST['StreetNumber']) ? null : $_POST['StreetNumber']), PDO::PARAM_STR);
+      $insert->bindValue(':streetNumber', (empty($_POST['StreetNumber']) ? null : $_POST['StreetNumber']), PDO::PARAM_STR);
       $insert->bindValue(':zip', $_POST['Zip'], PDO::PARAM_INT);
       $insert->bindValue(':city', $city, PDO::PARAM_STR);
       $update->bindValue(':latitude', $coordinates[1], PDO::PARAM_STR);

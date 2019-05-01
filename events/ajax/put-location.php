@@ -54,12 +54,12 @@ if (!empty($city) && !empty($coordinates[1]) && !empty($coordinates[2]) && !empt
     try
     {
       $update = $db->prepare('UPDATE aya_locations
-                              SET Name = :name, Street = :street, StreetNumber = :number, Zip = :zip, City = :city,
+                              SET Name = :name, Street = :street, StreetNumber = :streetNumber, Zip = :zip, City = :city,
                                 Coordinates = POINT(:latitude, :longitude), HostUrl = :url, Description = :description
                               WHERE LocationID = :id');
       $update->bindValue(':name', $name, PDO::PARAM_STR);
       $update->bindValue(':street', $street, PDO::PARAM_STR);
-      $update->bindValue(':number', (empty($_POST['StreetNumber']) ? null : $_POST['StreetNumber']), PDO::PARAM_STR);
+      $update->bindValue(':streetNumber', (empty($_POST['StreetNumber']) ? null : $_POST['StreetNumber']), PDO::PARAM_STR);
       $update->bindValue(':zip', $_POST['Zip'], PDO::PARAM_INT);
       $update->bindValue(':city', $city, PDO::PARAM_STR);
       $update->bindValue(':latitude', $coordinates[1], PDO::PARAM_STR);
