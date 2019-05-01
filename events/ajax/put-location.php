@@ -55,15 +55,14 @@ if (!empty($city) && !empty($coordinates[1]) && !empty($coordinates[2]) && !empt
     {
       $update = $db->prepare('UPDATE aya_locations
                               SET Name = :name, Street = :street, StreetNumber = :streetNumber, Zip = :zip, City = :city,
-                                Coordinates = POINT(:latitude, :longitude), HostUrl = :url, Description = :description
+                                Coordinates = ST_PointFromText(:coordinates), HostUrl = :url, Description = :description
                               WHERE LocationID = :id');
       $update->bindValue(':name', $name, PDO::PARAM_STR);
       $update->bindValue(':street', $street, PDO::PARAM_STR);
       $update->bindValue(':streetNumber', (empty($_POST['StreetNumber']) ? null : $_POST['StreetNumber']), PDO::PARAM_STR);
       $update->bindValue(':zip', $_POST['Zip'], PDO::PARAM_INT);
       $update->bindValue(':city', $city, PDO::PARAM_STR);
-      $update->bindValue(':latitude', $coordinates[1], PDO::PARAM_STR);
-      $update->bindValue(':longitude', $coordinates[2], PDO::PARAM_STR);
+      $update->bindValue(':coordinates', 'Point(' . $coordinates[1] . ' ' . $coordinates[2] . ')', PDO::PARAM_STR);
       $update->bindValue(':url', (empty($_POST['HostUrl']) ? null : $_POST['HostUrl']), PDO::PARAM_STR);
       $update->bindValue(':description', (empty($_POST['Description']) ? null : $_POST['Description']), PDO::PARAM_STR);
       $update->bindValue(':id', $locationID, PDO::PARAM_INT);
