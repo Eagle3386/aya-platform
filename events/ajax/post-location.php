@@ -29,7 +29,7 @@ if (preg_match('/^([0-9]{1,3}\.[0-9]{3,4}),([0-9]{1,3}\.[0-9]{3,4})$/', $_POST['
 $name = $_POST['Name'];
 $street = $_POST['Street'];
 
-if (!empty($city) && !empty($coordinates[1]) && !empty($coordinates[2]) && !empty($locationID) && !empty($name) && !empty($street))
+if (!empty($city) && !empty($coordinates[1]) && !empty($coordinates[2]) && !empty($name) && !empty($street))
 {
   try
   {
