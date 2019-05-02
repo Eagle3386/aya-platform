@@ -24,5 +24,5 @@ function getPayload() {
 }
 
 function loadedCallback() {
-  attachEventHandler(".form-control");
+  attachEventHandler('.form-control');
 }
