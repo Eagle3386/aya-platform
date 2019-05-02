@@ -13,10 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-error_reporting(E_ALL);
-ini_set('display_errors', TRUE);
-ini_set('display_startup_errors', TRUE);
-
 require_once('../db-initialization.php');
 
 if (!$isAdmin)
