@@ -20,3 +20,7 @@ function getPayload() {
     Name: $('#color-name').val()
   };
 }
+
+function loadedCallback() {
+  attachEventHandler('.form-control');
+}

@@ -41,13 +41,18 @@ let defaultResponses = {
 function attachEventHandler(selector) {
   $(selector).each(function() {
     $(this).on('input', function(event) {
-      let initialValue = '';
-      if (event.target.type === 'date' || event.target.type === 'textarea' || event.target.type === 'time') {
-        initialValue = event.target.defaultValue;
-      } else if (event.target.value !== '') {
-        initialValue = event.target.placeholder;
+      switch (event.target.type) {
+        case 'date':
+        case 'number':
+        case 'textarea':
+        case 'time':
+          enableSaveOnModified(event.target.value, event.target.defaultValue);
+          break;
+
+        default:
+          enableSaveOnModified(event.target.value, event.target.value !== '' ? event.target.placeholder : '');
+          break;
       }
-      enableSaveOnModified(event.target.value, initialValue);
     });
   });
 }

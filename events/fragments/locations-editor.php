@@ -177,7 +177,7 @@ echo '<div id="locations-editor-dialog" class="modal fade" role="dialog" tabinde
       </div>
       <div class="modal-footer">
         <button class="btn btn-aya-default" data-dismiss="modal" type="button">Abbrechen</button>
-        <button id="save" class="btn btn-aya" type="button">Hinzufügen</button>
+        <button id="save" class="btn btn-aya" disabled="disabled" type="button">Hinzufügen</button>
       </div>
     </div>
   </div>

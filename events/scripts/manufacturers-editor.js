@@ -21,3 +21,7 @@ function getPayload() {
     Keywords: $('#manufacturer-keywords').val()
   };
 }
+
+function loadedCallback() {
+  attachEventHandler('.form-control');
+}

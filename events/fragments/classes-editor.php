@@ -75,14 +75,16 @@ echo '<div id="classes-editor-dialog" class="modal fade" role="dialog" tabindex=
                 <div class="form-group">
                   <div class="input-group">
                     <div class="input-group-addon aya-label aya-label-event">Preisbegrenzung</div>
-                    <div class="btn-group" data-toggle="buttons">';
+                    <div id="class-price" class="btn-group" data-toggle="buttons">';
 
 $isLimited = !empty($ayaClass['PriceLimited']);
 echo '<label class="btn btn-aya-default btn-aya-toggle' . ($isLimited ? ' active' : '') . '">
-                        <input id="class-price-limited" checked="' . ($isLimited ? 'checked' : 'false') . '" name="priceLimitOptions" type="radio" /> Ja
+                        <input id="class-price-limited" checked="' . ($isLimited ? 'checked' : 'false') . '" data-initial-value="'
+                                 . ($isLimited ? 'on' : 'off') . '" name="priceLimitOptions" type="radio" /> Ja
                       </label>
                       <label class="btn btn-aya-default' . ($isLimited ? '' : ' active') . '">
-                        <input id="class-price-unlimited" checked="' . ($isLimited ? 'false' : 'checked') . '" name="priceLimitOptions" type="radio" /> Nein
+                        <input id="class-price-unlimited" checked="' . ($isLimited ? 'false' : 'checked') . '" data-initial-value="'
+                                 . ($isLimited ? 'off' : 'on') . '" name="priceLimitOptions" type="radio" /> Nein
                       </label>
                     </div>
                   </div>
@@ -107,7 +109,7 @@ echo '<label class="btn btn-aya-default btn-aya-toggle' . ($isLimited ? ' active
       </div>
       <div class="modal-footer">
         <button class="btn btn-aya-default" data-dismiss="modal" type="button">Abbrechen</button>
-        <button id="save" class="btn btn-aya" type="button">Hinzufügen</button>
+        <button id="save" class="btn btn-aya" disabled="disabled" type="button">Hinzufügen</button>
       </div>
     </div>
   </div>

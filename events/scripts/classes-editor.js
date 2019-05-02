@@ -22,3 +22,12 @@ function getPayload() {
     SortKey: $('#class-sort-key').val()
   };
 }
+
+function loadedCallback() {
+  attachEventHandler('.form-control');
+
+  $("#class-price").click(function(event) {
+    let checked = $(event.target.children[0]);
+    enableSaveOnModified(checked.val(), checked.data('initial-value'));
+  });
+}

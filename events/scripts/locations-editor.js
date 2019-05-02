@@ -27,3 +27,7 @@ function getPayload() {
     Zip: $('#location-zip').val()
   };
 }
+
+function loadedCallback() {
+  attachEventHandler('.form-control');
+}
