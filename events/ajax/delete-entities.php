@@ -15,14 +15,14 @@
 
 require_once('../db-initialization.php');
 
-if (!$isAdmin || !$isJuror)
+$type = $_POST['Type'];
+if (!$isAdmin && !empty($type) && $type !== 'attendances' && $type !== 'vehicles')
 {
-  die('Only administrators/jurors beyond this point! Sorry.');
+  die('Only administrators beyond this point! Sorry.');
 }
 
 $entities = json_decode($_POST['Entities'], true);
-$type = $_POST['Type'];
-if (!empty($entities) && !empty($type))
+if (!empty($entities))
 {
   $placeholders = null;
   foreach ($entities as $index => $entityId)
@@ -38,6 +38,7 @@ if (!empty($entities) && !empty($type))
     $check = $db->prepare('SELECT COUNT(*)
                            FROM ' . $type . '
                            WHERE Deleted = FALSE
+                             ' . ($isAdmin ? '' : 'AND phpBBUserID = ' . $phpBBUserID) . '
                              AND ' . $typeId . ' IN (' . $placeholders . ')');
     $check->execute($entityIds);
     $exists = $check->fetchColumn();
@@ -76,7 +77,8 @@ if (!empty($entities) && !empty($type))
       {
         $delete = $db->prepare('UPDATE ' . $type . '
                                 SET Deleted = TRUE
-                                WHERE ' . $typeId . ' IN (' . $placeholders . ')');
+                                WHERE ' . ($isAdmin ? '' : 'phpBBUserID = ' . $phpBBUserID . '
+                                  AND ') . $typeId . ' IN (' . $placeholders . ')');
         $delete->execute($entityIds);
         $rows = $delete->rowCount();
         echo (count($entities) === $rows ? $rows : 'COUNT_MISMATCH');
