@@ -1,5 +1,5 @@
 # AYA Platform
-Further details about the platform coming soon...
+Software platform for AYA e. V. events, using phpBB user accounts.
 
 ## Quick infos
 [![GitHub issues](https://img.shields.io/github/issues/Eagle3386/aya-platform.svg)](https://github.com/Eagle3386/aya-platform/issues) (click to view them or add a new one)
